@@ -228,17 +228,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         }
 
         Metric targetMetric = args[2].equals("ap")? Metric.AP : Metric.nDCG;
-        // String variantFile = args[4].equals("rlm")? Constants.QPP_JM_VARIANTS_FILE_RLM: Constants.QPP_JM_VARIANTS_FILE_W2V;
-        String variantFile = "";
-        switch(args[4]){
-            case "rlm":
-                variantFile = Constants.QPP_JM_VARIANTS_FILE_RLM;
-            case "w2v":
-                variantFile = Constants.QPP_JM_VARIANTS_FILE_W2V;
-            default:
-                variantFile = Constants.QPP_JM_VARIANTS_FILE_SBERT;
-        }
-        
+        String variantFile = args[4].equals("rlm")? Constants.QPP_JM_VARIANTS_FILE_RLM: Constants.QPP_JM_VARIANTS_FILE_W2V;
 
         try {
             OneStepRetriever retriever = new OneStepRetriever(Constants.QUERY_FILE_TEST);
