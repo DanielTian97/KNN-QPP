@@ -233,8 +233,10 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         switch(args[4]){
             case "rlm":
                 variantFile = Constants.QPP_JM_VARIANTS_FILE_RLM;
+                break;
             case "w2v":
                 variantFile = Constants.QPP_JM_VARIANTS_FILE_W2V;
+                break;
             default:
                 variantFile = Constants.QPP_JM_VARIANTS_FILE_SBERT;
         }
