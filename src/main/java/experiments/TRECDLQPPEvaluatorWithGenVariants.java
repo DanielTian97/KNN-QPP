@@ -77,7 +77,8 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             String trainResFile,
             String testResFile,
             int maxNumVariants,
-            String variantsFile
+            String variantsFile,
+            String scoreFile
     )
             throws Exception {
         IndexSearcher searcher = retriever.getSearcher();
@@ -106,7 +107,12 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         }
         System.out.println(String.format("The best settings: lambda=%.1f, nv=%d", p.l, p.numVariants));
         // apply this setting on the test set
-        KNNRelModel knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile, variantsFile);
+        if(scoreFile.equals("")){
+            KNNRelModel knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile, variantsFile);
+        } else {
+            KNNRelModel knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile, variantsFile, scoreFile);
+        }
+        
         List<MsMarcoQuery> testQueries = knnRelModelTest.getQueries(); // these queries are different from train queries
 
         Evaluator evaluatorTest = new Evaluator(testQrelsFile, testResFile); // load ret and rel
@@ -230,6 +236,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         Metric targetMetric = args[2].equals("ap")? Metric.AP : Metric.nDCG;
         // String variantFile = args[4].equals("rlm")? Constants.QPP_JM_VARIANTS_FILE_RLM: Constants.QPP_JM_VARIANTS_FILE_W2V;
         String variantFile = "";
+        String scoreFile = "";
         switch(args[4]){
             case "rlm":
                 variantFile = Constants.QPP_JM_VARIANTS_FILE_RLM;
@@ -239,6 +246,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
                 break;
             default:
                 variantFile = Constants.QPP_JM_VARIANTS_FILE_SBERT;
+                scoreFile = Constants.QPP_JM_SCORE_FILE_SBERT;
         }
         
 
@@ -256,11 +264,11 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             double kendalsOnTest = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL19], QRELS_FILES[DL19],
                     QUERY_FILES[DL20], QRELS_FILES[DL20],
-                    args[0], args[1], Constants.QPP_COREL_MAX_VARIANTS, variantFile);
+                    args[0], args[1], Constants.QPP_COREL_MAX_VARIANTS, variantFile, scoreFile);
             double kendalsOnTrain = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL20], QRELS_FILES[DL20],
                     QUERY_FILES[DL19], QRELS_FILES[DL19],
-                    args[1], args[0], Constants.QPP_COREL_MAX_VARIANTS, variantFile);
+                    args[1], args[0], Constants.QPP_COREL_MAX_VARIANTS, variantFile, scoreFile);
 
             double kendals = 0.5*(kendalsOnTrain + kendalsOnTest);
             System.out.println(String.format("Target Metric: %s, tau = %.4f", targetMetric.toString(), kendals));

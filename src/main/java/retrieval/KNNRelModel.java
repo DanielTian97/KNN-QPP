@@ -136,6 +136,43 @@ public class KNNRelModel extends SupervisedRLM {
         return topA==null||topB==null? 0 : (float)OverlapStats.computeRBO(topA, topB);
     }
 
+    void constructKNNMap(String variantsFile, String scoreFile) throws Exception {
+        knnQueryMap = new HashMap<>();
+
+        List<String> text_lines = FileUtils.readLines(new File(variantsFile), StandardCharsets.UTF_8);
+        List<String> score_lines = FileUtils.readLines(new File(scoreFile), StandardCharsets.UTF_8);
+
+        while(text_lines.hasNext()){
+            String text_line = text_lines.next();
+            String score_line = score_lines.next();
+
+            String[] tokens = score_line.split("\\t");
+            String[] scores = score_line.split("\\t");
+
+            String qid = tokens[0];
+
+            for (int i=2; i < tokens.length; i++) {
+                List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
+                if (knnQueries==null) {
+                    knnQueries = new ArrayList<>();
+                    knnQueryMap.put(qid, knnQueries);
+                }
+                MsMarcoQuery rq = new MsMarcoQuery(qid + "_v_" + i, tokens[i], Float.parseFloat(scores[i]));
+                if(rq.query==null){
+                    continue;
+                }
+
+                MsMarcoQuery testQuery = queryMap.get(qid);
+                if (testQuery==null)
+                    continue;  // the variants file is a union of dl'19 and 20... hence safe to discard missing ones
+                rq.setRefSim(1.0f); // uniform
+
+                knnQueries.add(rq);
+            }
+        }     
+    }
+
+
     void constructKNNMap(String variantsFile) throws Exception {
         knnQueryMap = new HashMap<>();
 
