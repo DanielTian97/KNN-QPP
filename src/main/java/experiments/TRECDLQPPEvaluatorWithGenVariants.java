@@ -253,14 +253,14 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             System.exit(0);
             */
 
-            double kendalsOnTest = trainAndTest(args[3], retriever, targetMetric,
-                    QUERY_FILES[DL19], QRELS_FILES[DL19],
-                    QUERY_FILES[DL20], QRELS_FILES[DL20],
-                    args[0], args[1], Constants.QPP_COREL_MAX_VARIANTS, variantFile);
             double kendalsOnTrain = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL20], QRELS_FILES[DL20],
                     QUERY_FILES[DL19], QRELS_FILES[DL19],
                     args[1], args[0], Constants.QPP_COREL_MAX_VARIANTS, variantFile);
+            double kendalsOnTest = trainAndTest(args[3], retriever, targetMetric,
+                    QUERY_FILES[DL19], QRELS_FILES[DL19],
+                    QUERY_FILES[DL20], QRELS_FILES[DL20],
+                    args[0], args[1], Constants.QPP_COREL_MAX_VARIANTS, variantFile);
 
             double kendals = 0.5*(kendalsOnTrain + kendalsOnTest);
             System.out.println(String.format("Target Metric: %s, tau = %.4f", targetMetric.toString(), kendals));

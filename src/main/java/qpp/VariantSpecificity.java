@@ -66,7 +66,13 @@ public class VariantSpecificity extends NQCSpecificity {
             //Arrays.stream(varInfo.getRSVs(5)).forEach(System.out::println);
 
             variantSpecScore = baseModel.computeSpecificity(rq, varInfo, topDocs, k);
-            refSim = rq.getRefSim();
+
+            //if nothing has been retrieved, then set the weight to 0
+            if(variantSpecScore == -1){
+                refSim = 0;
+            } else {
+                refSim = rq.getRefSim();
+            }
 
             //System.out.println(String.format("%s %.4f", rq.getId(), variantSpecScore));
             specScore +=  refSim * variantSpecScore ;

@@ -21,6 +21,9 @@ public class NQCSpecificity extends BaseIDFSpecificity {
 
     private double computeNQC(Query q, double[] rsvs, int k) {
         //double ref = new StandardDeviation().evaluate(rsvs);
+        if(rsvs.length == 0){
+            return -1; //if nothing has been retrieved, return a special value telling the caller retrieval failed
+        }
         double ref = Arrays.stream(rsvs).average().getAsDouble();
         double avgIDF = 0;
         double nqc = 0;
@@ -34,11 +37,11 @@ public class NQCSpecificity extends BaseIDFSpecificity {
         try {
             // dekhar jonyo je ei duto baaler modhye konta better baal!
             //avgIDF = Arrays.stream(idfs(q)).average().getAsDouble();
-            avgIDF = Arrays.stream(idfs(q)).max().getAsDouble();
+            maxIDF = Arrays.stream(idfs(q)).max().getAsDouble();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return nqc * avgIDF; // high variance, high avgIDF -- more specificity
+        return nqc * maxIDF; // high variance, high avgIDF -- more specificity
     }
 
     public double computeNQC(Query q, RetrievedResults topDocs, int k) {
