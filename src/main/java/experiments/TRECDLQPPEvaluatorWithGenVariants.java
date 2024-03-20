@@ -83,6 +83,9 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             throws Exception {
         IndexSearcher searcher = retriever.getSearcher();
         KNNRelModel knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, trainQueryFile, variantsFile);
+        if(!scoreFile.equals("")){
+            knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, trainQueryFile, variantsFile, scoreFile);
+        }
         List<MsMarcoQuery> trainQueries = knnRelModel.getQueries();
 
         Evaluator evaluatorTrain = new Evaluator(trainQrelsFile, trainResFile); // load ret and rel
