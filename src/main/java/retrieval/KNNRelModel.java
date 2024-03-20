@@ -146,15 +146,18 @@ public class KNNRelModel extends SupervisedRLM {
     void constructKNNMap(String variantsFile, String scoreFile) throws Exception {
         knnQueryMap = new HashMap<>();
 
-        List<String> text_lines = FileUtils.readLines(new File(variantsFile), StandardCharsets.UTF_8);
-        List<String> score_lines = FileUtils.readLines(new File(scoreFile), StandardCharsets.UTF_8);
+        List<String> textLines = FileUtils.readLines(new File(variantsFile), StandardCharsets.UTF_8);
+        List<String> scoreLines = FileUtils.readLines(new File(scoreFile), StandardCharsets.UTF_8);
 
-        while(text_lines.hasNext()){
-            String text_line = text_lines.next();
-            String score_line = score_lines.next();
+        Itertor textLineIterator = textLines.iterator();
+        Itertor scoreLineIterator = scoreLines.iterator();
 
-            String[] tokens = score_line.split("\\t");
-            String[] scores = score_line.split("\\t");
+        while(textLineIterator.hasNext()){
+            String textLine = textLineIterator.next();
+            String scoreLine = scoreLineIterator.next();
+
+            String[] tokens = textLine.split("\\t");
+            String[] scores = scoreLine.split("\\t");
 
             String qid = tokens[0];
 
