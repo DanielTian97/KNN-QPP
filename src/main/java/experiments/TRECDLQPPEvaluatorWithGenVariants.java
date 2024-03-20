@@ -107,10 +107,9 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         }
         System.out.println(String.format("The best settings: lambda=%.1f, nv=%d", p.l, p.numVariants));
         // apply this setting on the test set
-        if(scoreFile.equals("")){
-            KNNRelModel knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile, variantsFile);
-        } else {
-            KNNRelModel knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile, variantsFile, scoreFile);
+        KNNRelModel knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile, variantsFile);
+        if(!scoreFile.equals("")){
+            knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile, variantsFile, scoreFile);
         }
         
         List<MsMarcoQuery> testQueries = knnRelModelTest.getQueries(); // these queries are different from train queries
