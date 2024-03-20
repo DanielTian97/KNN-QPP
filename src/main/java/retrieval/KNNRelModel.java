@@ -149,8 +149,8 @@ public class KNNRelModel extends SupervisedRLM {
         List<String> textLines = FileUtils.readLines(new File(variantsFile), StandardCharsets.UTF_8);
         List<String> scoreLines = FileUtils.readLines(new File(scoreFile), StandardCharsets.UTF_8);
 
-        Iterator textLineIterator = textLines.iterator();
-        Iterator scoreLineIterator = scoreLines.iterator();
+        Iterator<String> textLineIterator = textLines.iterator();
+        Iterator<String> scoreLineIterator = scoreLines.iterator();
 
         while(textLineIterator.hasNext()){
             String textLine = textLineIterator.next();
