@@ -28,7 +28,9 @@ public class MsMarcoQuery implements Comparable<MsMarcoQuery> {
         this.qid = qid;
         this.qText = qText;
         this.simWithOrig = simWithOrig;
-        makeQuery();
+        if(!makeQuery()){
+            this.query = null;
+        }
     }
 
     public MsMarcoQuery(MsMarcoQuery that, Query query) {
@@ -71,15 +73,25 @@ public class MsMarcoQuery implements Comparable<MsMarcoQuery> {
                 .collect(Collectors.toSet());
     }
 
-    void makeQuery() {
+    boolean makeQuery() {
         BooleanQuery.Builder qb = new BooleanQuery.Builder();
         String[] tokens = MsMarcoIndexer
                 .analyze(MsMarcoIndexer.constructAnalyzer(), this.qText).split("\\s+");
+        
+        int count = 0;
         for (String token: tokens) {
+            if(!token.equals("")){
+                count++;
+            }
             TermQuery tq = new TermQuery(new Term(Constants.CONTENT_FIELD, token));
             qb.add(new BooleanClause(tq, BooleanClause.Occur.SHOULD));
         }
+
+        if(count==0){
+            return false;
+        }
         query = qb.build();
+        return true;
     }
 
     public List<MsMarcoQuery> retrieveSimilarQueries(

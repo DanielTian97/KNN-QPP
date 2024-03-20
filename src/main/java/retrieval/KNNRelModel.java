@@ -152,6 +152,10 @@ public class KNNRelModel extends SupervisedRLM {
                     knnQueryMap.put(qid, knnQueries);
                 }
                 MsMarcoQuery rq = new MsMarcoQuery(qid + "_v_" + i, tokens[i]);
+                if(rq.query==null){
+                    continue;
+                }
+
                 MsMarcoQuery testQuery = queryMap.get(qid);
                 if (testQuery==null)
                     continue;  // the variants file is a union of dl'19 and 20... hence safe to discard missing ones
