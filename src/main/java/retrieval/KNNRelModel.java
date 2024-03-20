@@ -78,6 +78,13 @@ public class KNNRelModel extends SupervisedRLM {
         constructKNNMap(variantsFile);
     }
 
+    public KNNRelModel(String qrelFile, String queryFile, String variantsFile, String scoreFile) throws Exception {
+        super(qrelFile, queryFile);
+        constructQueriesAndQrels(queryFile);
+
+        constructKNNMap(variantsFile, scoreFile);
+    }
+
     public List<MsMarcoQuery> getQueries() { return queryMap.values().stream().collect(Collectors.toList()); }
 
     public Map<String, MsMarcoQuery> constructQueries(String queryFile) throws Exception {
