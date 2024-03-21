@@ -150,7 +150,19 @@ public class MsMarcoQuery implements Comparable<MsMarcoQuery> {
         }
 
         return knnQueries;
+    }           
+
+    private Set<String> getRelDocsOfAnotherQuery(MsMarcoQuery q){
+        Set<String> relDocs = q.getRelDocSet().getRelDocs();
+        for (String docName : relDocs) {
+            int docId = knnRelModel.getDocOffset(docName);
+            String docText = searcher.getIndexReader().document(docId).get(Constants.CONTENT_FIELD);
+            // append this to the variants file
+            MsMarcoQuery docQuery = new MsMarcoQuery(docName, docText);
+            knnQueries.add(docQuery);
+        }
     }
+
 
     public Query getQuery() { return query; }
     public String getId() { return qid; }
