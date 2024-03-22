@@ -78,11 +78,11 @@ public class KNNRelModel extends SupervisedRLM {
         constructKNNMap(variantsFile);
     }
 
-    public KNNRelModel(String qrelFile, String queryFile, String variantsFile, String variantsQidFile, String scoreFile) throws Exception {
+    public KNNRelModel(String qrelFile, String queryFile, String variantsFile, String scoreFile) throws Exception {
         super(qrelFile, queryFile);
         constructQueriesAndQrels(queryFile);
 
-        constructKNNMap(variantsFile, variantsQidFile, scoreFile);
+        constructKNNMap(variantsFile, scoreFile);
     }
 
     public List<MsMarcoQuery> getQueries() { return queryMap.values().stream().collect(Collectors.toList()); }
@@ -143,24 +143,20 @@ public class KNNRelModel extends SupervisedRLM {
         return topA==null||topB==null? 0 : (float)OverlapStats.computeRBO(topA, topB);
     }
 
-    void constructKNNMap(String variantsFile, String variantsQidFile, String scoreFile) throws Exception {
+    void constructKNNMap(String variantsFile, String scoreFile) throws Exception {
         knnQueryMap = new HashMap<>();
 
         List<String> textLines = FileUtils.readLines(new File(variantsFile), StandardCharsets.UTF_8);
-        List<String> qidLines = FileUtils.readLines(new File(variantsQidFile), StandardCharsets.UTF_8);
         List<String> scoreLines = FileUtils.readLines(new File(scoreFile), StandardCharsets.UTF_8);
 
         Iterator<String> textLineIterator = textLines.iterator();
-        Iterator<String> qidLineIterator = qidLines.iterator();
         Iterator<String> scoreLineIterator = scoreLines.iterator();
 
         while(textLineIterator.hasNext()){
             String textLine = textLineIterator.next();
-            String qidLine = qidLineIterator.next();
             String scoreLine = scoreLineIterator.next();
 
             String[] tokens = textLine.split("\\t");
-            String[] qids = qidLine.split("\\t");
             String[] scores = scoreLine.split("\\t");
 
             String qid = tokens[0];
@@ -171,7 +167,7 @@ public class KNNRelModel extends SupervisedRLM {
                     knnQueries = new ArrayList<>();
                     knnQueryMap.put(qid, knnQueries);
                 }
-                MsMarcoQuery rq = new MsMarcoQuery(qids[i], tokens[i], Float.parseFloat(scores[i]));
+                MsMarcoQuery rq = new MsMarcoQuery(qid + "_v_" + i, tokens[i], Float.parseFloat(scores[i]));
                 if(rq.query==null){
                     continue;
                 }
