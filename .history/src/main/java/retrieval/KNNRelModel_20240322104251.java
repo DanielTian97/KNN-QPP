@@ -172,10 +172,8 @@ public class KNNRelModel extends SupervisedRLM {
                     continue;
                 }
 
-                System.out.println(knnQueries.size());
                 // queries which are in fact docs
                 knnQueries = getRelDocsSimQuery(rq, knnQueries);
-                System.out.println(knnQueries.size());
 
                 MsMarcoQuery testQuery = queryMap.get(qid);
                 if (testQuery==null)
@@ -245,7 +243,6 @@ public class KNNRelModel extends SupervisedRLM {
         for (String docName : relDocs) {
             int docId = getDocOffset(docName);
             String docText = searcher.getIndexReader().document(docId).get(Constants.CONTENT_FIELD);
-            System.out.println(docText);
             // append this to the variants file
             MsMarcoQuery docQuery = new MsMarcoQuery(docName, docText, q.getRefSim());
             knnQueries.add(docQuery);
