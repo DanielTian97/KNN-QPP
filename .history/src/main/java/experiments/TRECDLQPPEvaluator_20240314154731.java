@@ -264,7 +264,7 @@ public class TRECDLQPPEvaluator {
         }
 
         Metric targetMetric = args[2].equals("ap")? Metric.AP : Metric.nDCG;
-        boolean useRBO = Boolean.parseBoolean(args[4]);
+        //boolean useRBO = Boolean.parseBoolean(args[4]);
 
         try {
             OneStepRetriever retriever = new OneStepRetriever(Constants.QUERY_FILE_TEST);
@@ -281,11 +281,11 @@ public class TRECDLQPPEvaluator {
             TauAndSARE kendalsOnTest = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL19], QRELS_FILES[DL19],
                     QUERY_FILES[DL20], QRELS_FILES[DL20],
-                    args[0], args[1], Constants.QPP_COREL_MAX_VARIANTS, useRBO);
+                    args[0], args[1], Constants.QPP_COREL_MAX_VARIANTS, false);
             TauAndSARE kendalsOnTrain = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL20], QRELS_FILES[DL20],
                     QUERY_FILES[DL19], QRELS_FILES[DL19],
-                    args[1], args[0], Constants.QPP_COREL_MAX_VARIANTS, useRBO);
+                    args[1], args[0], Constants.QPP_COREL_MAX_VARIANTS, false);
 
             double kendals = 0.5*(kendalsOnTrain.tau + kendalsOnTest.tau);
             double sare = 0.5*(kendalsOnTrain.sare + kendalsOnTest.sare);
