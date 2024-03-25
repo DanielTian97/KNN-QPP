@@ -228,16 +228,15 @@ public class TRECDLQPPEvaluatorWithGenVariants {
 
     public static void main(String[] args) {
 
-        if (args.length < 7) {
+        if (args.length < 6) {
             System.out.println("Required arguments: <res file DL 19> <res file DL 20> <metric (ap/ndcg)> <uef/nqc> <rlm/w2v (variant gen)> <extend queries(1)?>");
-            args = new String[7];
+            args = new String[6];
             args[0] = "runs/splade.dl19.100.pp";
             args[1] = "runs/splade.dl20.100.pp";
             args[2] = "ap";
             args[3] = "nqc";
             args[4] = "rlm";
             args[5] = "false"; //extend to doc->query
-            args[6] = "false"; //useRBO
         }
 
         Metric targetMetric = args[2].equals("ap")? Metric.AP : Metric.nDCG;
@@ -259,7 +258,6 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         }
         
         boolean extendOne = Boolean.parseBoolean(args[5]);
-        boolean useRBO = Boolean.parseBoolean(args[6]);
 
         try {
             OneStepRetriever retriever = new OneStepRetriever(Constants.QUERY_FILE_TEST);
@@ -275,11 +273,11 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             double kendalsOnTest = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL19], QRELS_FILES[DL19],
                     QUERY_FILES[DL20], QRELS_FILES[DL20],
-                    args[0], args[1], Constants.QPP_COREL_MAX_VARIANTS, variantFile, variantQidFile, scoreFile, extendOne, useRBO);
+                    args[0], args[1], Constants.QPP_COREL_MAX_VARIANTS, variantFile, variantQidFile, scoreFile, extendOne);
             double kendalsOnTrain = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL20], QRELS_FILES[DL20],
                     QUERY_FILES[DL19], QRELS_FILES[DL19],
-                    args[1], args[0], Constants.QPP_COREL_MAX_VARIANTS, variantFile, variantQidFile, scoreFile, extendOne, useRBO);
+                    args[1], args[0], Constants.QPP_COREL_MAX_VARIANTS, variantFile, variantQidFile, scoreFile, extendOne);
 
             double kendals = 0.5*(kendalsOnTrain + kendalsOnTest);
             System.out.println(String.format("Target Metric: %s, tau = %.4f", targetMetric.toString(), kendals));

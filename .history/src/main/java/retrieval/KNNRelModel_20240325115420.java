@@ -71,18 +71,18 @@ public class KNNRelModel extends SupervisedRLM {
         constructKNNMap(useRBO);
     }
 
-    public KNNRelModel(String qrelFile, String queryFile, String variantsFile, boolean useRBO) throws Exception {
+    public KNNRelModel(String qrelFile, String queryFile, String variantsFile) throws Exception {
         super(qrelFile, queryFile);
         constructQueriesAndQrels(queryFile);
 
-        constructKNNMap(variantsFile, useRBO);
+        constructKNNMap(variantsFile);
     }
 
-    public KNNRelModel(String qrelFile, String queryFile, String variantsFile, String variantsQidFile, String scoreFile, boolean extendToRelQueryFromDocs, boolean useRBO) throws Exception {
+    public KNNRelModel(String qrelFile, String queryFile, String variantsFile, String variantsQidFile, String scoreFile, boolean extendToRelQueryFromDocs) throws Exception {
         super(qrelFile, queryFile);
         constructQueriesAndQrels(queryFile);
 
-        constructKNNMap(variantsFile, variantsQidFile, scoreFile, extendToRelQueryFromDocs, useRBO);
+        constructKNNMap(variantsFile, variantsQidFile, scoreFile, extendToRelQueryFromDocs);
     }
 
     public List<MsMarcoQuery> getQueries() { return queryMap.values().stream().collect(Collectors.toList()); }
@@ -143,7 +143,7 @@ public class KNNRelModel extends SupervisedRLM {
         return topA==null||topB==null? 0 : (float)OverlapStats.computeRBO(topA, topB);
     }
 
-    void constructKNNMap(String variantsFile, String variantsQidFile, String scoreFile, boolean extendToRelQueryFromDocs, boolean useRBO) throws Exception {
+    void constructKNNMap(String variantsFile, String variantsQidFile, String scoreFile, boolean extendToRelQueryFromDocs，boolean useRBO) throws Exception {
         knnQueryMap = new HashMap<>();
 
         List<String> textLines = FileUtils.readLines(new File(variantsFile), StandardCharsets.UTF_8);

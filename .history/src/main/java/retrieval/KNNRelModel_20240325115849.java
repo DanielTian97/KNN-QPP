@@ -143,7 +143,7 @@ public class KNNRelModel extends SupervisedRLM {
         return topA==null||topB==null? 0 : (float)OverlapStats.computeRBO(topA, topB);
     }
 
-    void constructKNNMap(String variantsFile, String variantsQidFile, String scoreFile, boolean extendToRelQueryFromDocs, boolean useRBO) throws Exception {
+    void constructKNNMap(String variantsFile, String variantsQidFile, String scoreFile, boolean extendToRelQueryFromDocs，boolean useRBO) throws Exception {
         knnQueryMap = new HashMap<>();
 
         List<String> textLines = FileUtils.readLines(new File(variantsFile), StandardCharsets.UTF_8);
