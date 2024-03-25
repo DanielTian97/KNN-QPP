@@ -164,7 +164,6 @@ public class KNNRelModel extends SupervisedRLM {
             String[] scores = scoreLine.split("\\t");
 
             String qid = tokens[0];
-            MsMarcoQuery q = queryMap.get(qid);
             
             List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
             for (int i=2; i < tokens.length; i++) {
@@ -192,14 +191,14 @@ public class KNNRelModel extends SupervisedRLM {
                 // rq.setRefSim(1.0f); // uniform
 
                 knnQueries.add(rq);
-
-            }
-            if (useRBO) {
-                for (MsMarcoQuery knnQuery : knnQueries)
-                    knnQuery.setRefSim(computeRBO(q, knnQuery));
-
-                knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
-                //knnQueries.stream().forEach(System.out::println);
+                
+                if (useRBO) {
+                    for (MsMarcoQuery knnQuery : knnQueries)
+                        knnQuery.setRefSim(computeRBO(rq, knnQuery));
+    
+                    knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+                    //knnQueries.stream().forEach(System.out::println);
+                }
             }
 
         }     
@@ -214,7 +213,6 @@ public class KNNRelModel extends SupervisedRLM {
         for (String line: lines) {
             String[] tokens = line.split("\\t");
             String qid = tokens[0];
-            MsMarcoQuery q = queryMap.get(qid);
 
             List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
             for (int i=2; i < tokens.length; i++) {
