@@ -71,10 +71,6 @@ public class TRECDLQPPEvaluator {
 
         for (MsMarcoQuery query : queries) {
             RetrievedResults rr = evaluator.getRetrievedResultsForQueryId(query.getId());
-            if(scaler_base == -1){
-                scaler_base = rr.getRSVs(1)[0];
-                qppMethod.setScaler(Math.pow(scaler_base, 2));
-            }
             TopDocs topDocs = topDocsMap.get(query.getId());
 
             evaluatedMetricValues[i] = evaluator.compute(query.getId(), targetMetric);
