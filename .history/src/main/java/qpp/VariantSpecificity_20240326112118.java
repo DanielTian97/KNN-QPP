@@ -31,7 +31,7 @@ public class VariantSpecificity extends NQCSpecificity {
         this.scaler = 1;
     }
 
-    public void setScaler(double scaler){
+    void setScaler(double scaler){
         this.scaler = scaler;
     }
 
@@ -54,8 +54,15 @@ public class VariantSpecificity extends NQCSpecificity {
         catch (Exception ex) { ex.printStackTrace(); }
 
         return knnQueries!=null?
-                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler:
+                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k):
                 baseModel.computeSpecificity(q, retInfo, topDocs, k);
+    }
+
+    RetrievedResults scaleRetInfo(RetrievedResults retInfo, int k){
+        retInfo.getRSVs(k);
+
+
+        return retInfo;
     }
 
     double variantSpecificity(MsMarcoQuery q, List<MsMarcoQuery> knnQueries,

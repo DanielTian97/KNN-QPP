@@ -16,7 +16,6 @@ public class VariantSpecificity extends NQCSpecificity {
     KNNRelModel knnRelModel;
     int numVariants;
     float lambda;
-    double scaler; // to scale the current query's retrieval scores
 
     public VariantSpecificity(QPPMethod baseModel,
                               IndexSearcher searcher, KNNRelModel knnRelModel,
@@ -28,19 +27,12 @@ public class VariantSpecificity extends NQCSpecificity {
         this.knnRelModel = knnRelModel;
         this.numVariants = numVariants;
         this.lambda = lambda;
-        this.scaler = 1;
-    }
-
-    public void setScaler(double scaler){
-        this.scaler = scaler;
     }
 
     @Override
     public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k) {
         List<MsMarcoQuery> knnQueries = null;
         double variantSpec = 0;
-
-        // retInfo.getRSVs(k);
 
         try {
             if (numVariants > 0)
@@ -54,8 +46,15 @@ public class VariantSpecificity extends NQCSpecificity {
         catch (Exception ex) { ex.printStackTrace(); }
 
         return knnQueries!=null?
-                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler:
+                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k):
                 baseModel.computeSpecificity(q, retInfo, topDocs, k);
+    }
+
+    RetrievedResults scaleRetInfo(RetrievedResults retInfo, int k){
+        retInfo.getRSVs(k);
+
+
+        return retInfo;
     }
 
     double variantSpecificity(MsMarcoQuery q, List<MsMarcoQuery> knnQueries,

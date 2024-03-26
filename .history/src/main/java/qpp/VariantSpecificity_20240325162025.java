@@ -16,7 +16,6 @@ public class VariantSpecificity extends NQCSpecificity {
     KNNRelModel knnRelModel;
     int numVariants;
     float lambda;
-    double scaler; // to scale the current query's retrieval scores
 
     public VariantSpecificity(QPPMethod baseModel,
                               IndexSearcher searcher, KNNRelModel knnRelModel,
@@ -28,19 +27,12 @@ public class VariantSpecificity extends NQCSpecificity {
         this.knnRelModel = knnRelModel;
         this.numVariants = numVariants;
         this.lambda = lambda;
-        this.scaler = 1;
-    }
-
-    public void setScaler(double scaler){
-        this.scaler = scaler;
     }
 
     @Override
     public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k) {
         List<MsMarcoQuery> knnQueries = null;
         double variantSpec = 0;
-
-        // retInfo.getRSVs(k);
 
         try {
             if (numVariants > 0)
@@ -54,7 +46,7 @@ public class VariantSpecificity extends NQCSpecificity {
         catch (Exception ex) { ex.printStackTrace(); }
 
         return knnQueries!=null?
-                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler:
+                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k):
                 baseModel.computeSpecificity(q, retInfo, topDocs, k);
     }
 
@@ -65,6 +57,8 @@ public class VariantSpecificity extends NQCSpecificity {
         double variantSpecScore;
         double refSim;
 
+        double baseSquare = -1;
+
         // apply QPP base model on these estimated relevance scores
         for (MsMarcoQuery rq: knnQueries) {
             //System.out.println(rq.toString());
@@ -73,7 +67,11 @@ public class VariantSpecificity extends NQCSpecificity {
             RetrievedResults varInfo = new RetrievedResults(rq.getId(), topDocsRQ);
             //Arrays.stream(varInfo.getRSVs(5)).forEach(System.out::println);
 
-            variantSpecScore = baseModel.computeSpecificity(rq, varInfo, topDocs, k);
+            if(baseSquare == -1){
+                baseSquare = Math.pow(varInfo.getRSVs(1)[0], 2);
+            }
+
+            variantSpecScore = baseModel.computeSpecificity(rq, varInfo, topDocs, k) / baseSquare;
 
             //if nothing has been retrieved, then set the weight to 0
             if(variantSpecScore == -1){

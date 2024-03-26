@@ -37,27 +37,26 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         double kendals = 0;
 
         QPPMethod baseModel = baseQPPModelName.equals("nqc")? new NQCSpecificity(searcher): new UEFSpecificity(new NQCSpecificity(searcher));
-        VariantSpecificity qppMethod = new VariantSpecificity(
+        QPPMethod qppMethod = new VariantSpecificity(
                 baseModel,
                 searcher,
                 knnRelModel,
                 numVariants,
                 lambda
-        ); // I changed it to the subclass, is it ok?
+        );
 
         int numQueries = queries.size();
         double[] qppEstimates = new double[numQueries];
         double[] evaluatedMetricValues = new double[numQueries];
 
         int i = 0;
-        double scaler_base = -1;
+        double scaler = -1;
 
         for (MsMarcoQuery query : queries) {
 
             RetrievedResults rr = evaluator.getRetrievedResultsForQueryId(query.getId());
-            if(scaler_base == -1){
-                scaler_base = rr.getRSVs(1)[0];
-                qppMethod.setScaler(Math.pow(scaler_base, 2));
+            if(scaler == -1){
+                scaler = rr.getRSVs(1)[0];
             }
             TopDocs topDocs = topDocsMap.get(query.getId());
 

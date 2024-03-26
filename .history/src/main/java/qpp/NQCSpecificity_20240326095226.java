@@ -45,9 +45,12 @@ public class NQCSpecificity extends BaseIDFSpecificity {
     }
 
     public double computeNQC(Query q, RetrievedResults topDocs, int k) {
-
-        return computeNQC(q, topDocs.getRSVs(k), k);
-        
+        if(k > 0){
+            // for current query, calculate scaled NQC
+            return computeScaledNQC(q, topDocs.getRSVs(k), k);
+        } else {
+            return computeNQC(q, topDocs.getRSVs(-k), -k);
+        }
     }
 
     double[] getRSVs(TopDocs topDocs) {
