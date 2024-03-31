@@ -330,6 +330,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             }
             System.exit(0);
             */
+            updateScaler();
 
             double kendalsOnTest = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL19], QRELS_FILES[DL19],

@@ -26,6 +26,52 @@ public class TRECDLQPPEvaluatorWithGenVariants {
     static String[] QRELS_FILES = {"data/trecdl/pass_2019.qrels", "data/trecdl/pass_2020.qrels"};
     static double scaler = -1;
 
+    static void trainAndTest1(
+            String baseModelName,
+            OneStepRetriever retriever,
+            Metric targetMetric,
+            String trainQueryFile,
+            String trainQrelsFile,
+            String testQueryFile,
+            String testQrelsFile,
+            String trainResFile,
+            String testResFile,
+            int maxNumVariants,
+            String variantsFile,
+            String variantsQidFile,
+            String scoreFile,
+            boolean extendToRelQueryFromDocs,
+            boolean useRBO
+    )
+            throws Exception {
+        IndexSearcher searcher = retriever.getSearcher();
+        KNNRelModel knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, trainQueryFile, variantsFile, useRBO);
+        if(!scoreFile.equals("")){
+            knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, trainQueryFile, variantsFile, variantsQidFile, scoreFile, extendToRelQueryFromDocs, useRBO);
+        }
+        List<MsMarcoQuery> trainQueries = knnRelModel.getQueries();
+
+        // find the scaler
+
+        Evaluator evaluatorTrain = new Evaluator(trainQrelsFile, trainResFile); // load ret and rel
+        Map<String, TopDocs> topDocsMap = evaluatorTrain.getAllRetrievedResults().castToTopDocs();
+
+        OptimalHyperParams p = new OptimalHyperParams();
+
+
+                double kendals = runExperiment(baseModelName,
+                        searcher, knnRelModel, evaluatorTrain,
+                        trainQueries, topDocsMap, l, numVariants, targetMetric);
+
+                if (kendals > p.kendals) {
+                    p.l = l;
+
+                    p.kendals = kendals; // keep track of max
+
+        }
+
+    }
+
     static void updateScaler(
             String baseQPPModelName, // nqc/uef
             IndexSearcher searcher,
@@ -41,7 +87,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
                 searcher,
                 knnRelModel,
                 3, // we want to set ratio based on num of 3 variants
-                1 // just a to set it to 1; for pre-computing the ratio, we don't need lamdba
+                lambda
         ); // I changed it to the subclass, is it ok?
 
         int i = 0;
@@ -147,10 +193,6 @@ public class TRECDLQPPEvaluatorWithGenVariants {
 
         Evaluator evaluatorTrain = new Evaluator(trainQrelsFile, trainResFile); // load ret and rel
         Map<String, TopDocs> topDocsMap = evaluatorTrain.getAllRetrievedResults().castToTopDocs();
-
-        if(scaler == -1){
-            updateScaler(baseModelName, searcher, knnRelModel, evaluatorTrain, trainQueries, topDocsMap);
-        }
 
         OptimalHyperParams p = new OptimalHyperParams();
 
@@ -330,6 +372,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             }
             System.exit(0);
             */
+            updateScaler();
 
             double kendalsOnTest = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL19], QRELS_FILES[DL19],

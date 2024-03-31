@@ -61,11 +61,13 @@ public class VariantSpecificity extends NQCSpecificity {
     public double preComputeRatio(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k){
         List<MsMarcoQuery> knnQueries = null;
 
+        
+
         double variantSpec = 0;
         double currentSpec = baseModel.computeSpecificity(q, retInfo, topDocs, k);
 
         try {
-            knnQueries = knnRelModel.getKNNs(q, this.numVariants);
+            knnQueries = knnRelModel.getKNNs(q, 3);
 
             if (knnQueries!=null && !knnQueries.isEmpty()) {
                 variantSpec = variantSpecificity(q, knnQueries, retInfo, topDocs, k);

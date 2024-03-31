@@ -24,24 +24,24 @@ public class TRECDLQPPEvaluatorWithGenVariants {
     static final int DL20 = 1;
     static String[] QUERY_FILES = {"data/trecdl/pass_2019.queries", "data/trecdl/pass_2020.queries"};
     static String[] QRELS_FILES = {"data/trecdl/pass_2019.qrels", "data/trecdl/pass_2020.qrels"};
-    static double scaler = -1;
+    double scaler = -1;
 
-    static void updateScaler(
+    static double calScaler(
             String baseQPPModelName, // nqc/uef
             IndexSearcher searcher,
             KNNRelModel knnRelModel,
             Evaluator evaluator,
             List<MsMarcoQuery> queries,
-            Map<String, TopDocs> topDocsMap) {
-            // float lambda, int numVariants, Metric targetMetric) {
+            Map<String, TopDocs> topDocsMap,
+            float lambda, int numVariants, Metric targetMetric) {
 
         QPPMethod baseModel = baseQPPModelName.equals("nqc")? new NQCSpecificity(searcher): new UEFSpecificity(new NQCSpecificity(searcher));
         VariantSpecificity qppMethod = new VariantSpecificity(
                 baseModel,
                 searcher,
                 knnRelModel,
-                3, // we want to set ratio based on num of 3 variants
-                1 // just a to set it to 1; for pre-computing the ratio, we don't need lamdba
+                numVariants,
+                lambda
         ); // I changed it to the subclass, is it ok?
 
         int i = 0;
@@ -64,12 +64,9 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         }
 
         avgRatio /= i;
-        double avgScaler = avgRatio / targetRatio;
-        System.out.println(avgRatio);
+        double scaler = avgRatio / targetRatio;
         
-        if(scaler == -1){
-            scaler = avgScaler;
-        }
+        return scaler;
     }
 
     static double runExperiment(
@@ -91,7 +88,6 @@ public class TRECDLQPPEvaluatorWithGenVariants {
                 numVariants,
                 lambda
         ); // I changed it to the subclass, is it ok?
-        qppMethod.setScaler(scaler);
 
         int numQueries = queries.size();
         double[] qppEstimates = new double[numQueries];
@@ -103,7 +99,10 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         for (MsMarcoQuery query : queries) {
 
             RetrievedResults rr = evaluator.getRetrievedResultsForQueryId(query.getId());
-
+            // if(scaler_base == -1){
+            //     scaler_base = rr.getRSVs(1)[0];
+            //     qppMethod.setScaler(Math.pow(scaler_base, 2));
+            // }
             TopDocs topDocs = topDocsMap.get(query.getId());
 
             evaluatedMetricValues[i] = evaluator.compute(query.getId(), targetMetric);
@@ -147,10 +146,6 @@ public class TRECDLQPPEvaluatorWithGenVariants {
 
         Evaluator evaluatorTrain = new Evaluator(trainQrelsFile, trainResFile); // load ret and rel
         Map<String, TopDocs> topDocsMap = evaluatorTrain.getAllRetrievedResults().castToTopDocs();
-
-        if(scaler == -1){
-            updateScaler(baseModelName, searcher, knnRelModel, evaluatorTrain, trainQueries, topDocsMap);
-        }
 
         OptimalHyperParams p = new OptimalHyperParams();
 
