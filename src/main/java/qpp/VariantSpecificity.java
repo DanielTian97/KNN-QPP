@@ -17,6 +17,15 @@ public class VariantSpecificity extends NQCSpecificity {
     int numVariants;
     float lambda;
     double scaler; // to scale the current query's retrieval scores
+    boolean auto; // whether switch on auto lambda
+
+    public void setScaler(double scaler){
+        this.scaler = scaler;
+    }
+
+    public void setAuto(boolean auto){
+        this.auto = auto;
+    }
 
     public VariantSpecificity(QPPMethod baseModel,
                               IndexSearcher searcher, KNNRelModel knnRelModel,
@@ -29,6 +38,7 @@ public class VariantSpecificity extends NQCSpecificity {
         this.numVariants = numVariants;
         this.lambda = lambda;
         this.scaler = 1;
+        this.auto = false;
     }
 
     public void setScaler(double scaler){
@@ -53,8 +63,14 @@ public class VariantSpecificity extends NQCSpecificity {
         }
         catch (Exception ex) { ex.printStackTrace(); }
 
+        if(auto){
+            float lambdaReal = knnRelModel.getAvgTopKSimScoreForQ(q.getId, numVariants);
+        } else {
+            float lambdaReal = this.lambda;
+        }
+
         return knnQueries!=null?
-                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler:
+                lambdaReal * variantSpec + (1-lambdaReal) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler:
                 baseModel.computeSpecificity(q, retInfo, topDocs, k);
     }
 
