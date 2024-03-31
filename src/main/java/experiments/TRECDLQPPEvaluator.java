@@ -139,13 +139,13 @@ public class TRECDLQPPEvaluator {
                     p.kendals = tauAndSARE.tau; // keep track of max
                 }
             }
-        }
 
-        TauAndSARE tauAndSARE = runExperiment(baseModelName,
+            TauAndSARE tauAndSARE = runExperiment(baseModelName,
                         searcher, knnRelModel, evaluatorTrain,
                         trainQueries, topDocsMap, 0.5, numVariants, targetMetric, true); // lambda here has no meaning because of the auto setting
-        System.out.println(String.format("Train on %s -- (%s, %d): tau = %.4f",
-                        trainQueryFile, "-auto-", numVariants, tauAndSARE.tau, tauAndSARE.sare));        
+            System.out.println(String.format("Train on %s -- (%s, %d): tau = %.4f",
+                        trainQueryFile, "-auto-", numVariants, tauAndSARE.tau, tauAndSARE.sare)); 
+        }       
         
 
         System.out.println(String.format("The best settings: lambda=%.1f, nv=%d", p.l, p.numVariants));
