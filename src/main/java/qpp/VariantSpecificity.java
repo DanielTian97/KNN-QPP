@@ -63,11 +63,10 @@ public class VariantSpecificity extends NQCSpecificity {
         }
         catch (Exception ex) { ex.printStackTrace(); }
 
+        float lambdaReal = this.lambda;
         if(auto){
-            float lambdaReal = knnRelModel.getAvgTopKSimScoreForQ(q.getId, numVariants);
-        } else {
-            float lambdaReal = this.lambda;
-        }
+            lambdaReal = knnRelModel.getAvgTopKSimScoreForQ(q.getId(), numVariants);
+        } 
 
         return knnQueries!=null?
                 lambdaReal * variantSpec + (1-lambdaReal) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler:
