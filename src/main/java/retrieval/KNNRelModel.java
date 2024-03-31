@@ -53,6 +53,12 @@ public class KNNRelModel extends SupervisedRLM {
 
     public Map<String, List<MsMarcoQuery>> getKnnQueryMap() { return knnQueryMap; }
 
+    public float getAvgTopKSimScoreForQ(String qid, int k) { // k for first-k queries to estimate lambda
+        double avgSim = knnQueryMap.get(qid).stream().limit(k).mapToDouble(w -> double(w.getRefSim())).sum()/k;
+
+        return float(avgSim);
+    }
+
     private void constructQueriesAndQrels(String queryFile) throws Exception {
         queryMap = new HashMap<>();
         qIndexReader = DirectoryReader.open(FSDirectory.open(new File(Constants.MSMARCO_QUERY_INDEX).toPath()));
