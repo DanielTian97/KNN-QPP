@@ -51,7 +51,7 @@ public class TRECDLQPPEvaluator {
             Evaluator evaluator,
             List<MsMarcoQuery> queries,
             Map<String, TopDocs> topDocsMap,
-            float lambda, int numVariants, Metric targetMetric, boolean auto) {
+            float lambda, int numVariants, Metric targetMetric) {
 
         QPPMethod baseModel = baseQPPModelName.equals("nqc")? new NQCSpecificity(searcher): new UEFSpecificity(new NQCSpecificity(searcher));
         VariantSpecificity qppMethod = new VariantSpecificity(
@@ -62,25 +62,21 @@ public class TRECDLQPPEvaluator {
                 lambda
         ); // I changed it to the subclass, is it ok?
 
-        if(auto){
-            qppMethod.setAuto(true);
-        }
-
         int numQueries = queries.size();
         double[] qppEstimates = new double[numQueries];
         double[] evaluatedMetricValues = new double[numQueries];
 
         int i = 0;
-        // double scaler_base = -1;
+        double scaler_base = -1;
 
         for (MsMarcoQuery query : queries) {
 
-            // System.out.println(knnRelModel.getAvgTopKSimScoreForQ(query.getId(), numVariants));
+            System.out.println(knnRelModel.getAvgTopKSimScoreForQ(query.getId(), numVariants));
             RetrievedResults rr = evaluator.getRetrievedResultsForQueryId(query.getId());
-            // if(scaler_base == -1){
-            //     scaler_base = rr.getRSVs(1)[0];
-            //     qppMethod.setScaler(Math.pow(scaler_base, 2));
-            // }
+            if(scaler_base == -1){
+                scaler_base = rr.getRSVs(1)[0];
+                qppMethod.setScaler(Math.pow(scaler_base, 2));
+            }
             TopDocs topDocs = topDocsMap.get(query.getId());
 
             evaluatedMetricValues[i] = evaluator.compute(query.getId(), targetMetric);
@@ -129,7 +125,7 @@ public class TRECDLQPPEvaluator {
             for (float l = 0; l <= 1; l += Constants.QPP_COREL_LAMBDA_STEPS) {
                 TauAndSARE tauAndSARE = runExperiment(baseModelName,
                         searcher, knnRelModel, evaluatorTrain,
-                        trainQueries, topDocsMap, l, numVariants, targetMetric, false);
+                        trainQueries, topDocsMap, l, numVariants, targetMetric);
 
                 System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f",
                         trainQueryFile, l, numVariants, tauAndSARE.tau, tauAndSARE.sare));
@@ -140,14 +136,6 @@ public class TRECDLQPPEvaluator {
                 }
             }
         }
-
-        TauAndSARE tauAndSARE = runExperiment(baseModelName,
-                        searcher, knnRelModel, evaluatorTrain,
-                        trainQueries, topDocsMap, 0.5, numVariants, targetMetric, true); // lambda here has no meaning because of the auto setting
-        System.out.println(String.format("Train on %s -- (%s, %d): tau = %.4f",
-                        trainQueryFile, "-auto-", numVariants, tauAndSARE.tau, tauAndSARE.sare));        
-        
-
         System.out.println(String.format("The best settings: lambda=%.1f, nv=%d", p.l, p.numVariants));
         // apply this setting on the test set
         KNNRelModel knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile, useRBO);
@@ -161,7 +149,7 @@ public class TRECDLQPPEvaluator {
         Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
         TauAndSARE tauAndSARE_Test = runExperiment(baseModelName,
                 searcher, knnRelModelTest,
-                evaluatorTest, testQueries, topDocsMapTest, p.l, p.numVariants, targetMetric, false);
+                evaluatorTest, testQueries, topDocsMapTest, p.l, p.numVariants, targetMetric);
 
         System.out.println(String.format(
                 "Kendal's on %s with lambda=%.1f, M=%d: %.4f %.4f",
@@ -242,31 +230,31 @@ public class TRECDLQPPEvaluator {
     //     return tauAndSARE_Test;
     // }
 
-    // static void runSingleExperiment(
-    //         String baseModelName,
-    //         OneStepRetriever retriever,
-    //         String queryFile, String qrelsFile,
-    //         String resFile,
-    //         Metric targetMetric,
-    //         int numVariants,
-    //         float l,
-    //         boolean useRBO
-    // )
-    // throws Exception {
+    static void runSingleExperiment(
+            String baseModelName,
+            OneStepRetriever retriever,
+            String queryFile, String qrelsFile,
+            String resFile,
+            Metric targetMetric,
+            int numVariants,
+            float l,
+            boolean useRBO
+    )
+    throws Exception {
 
-    //     KNNRelModel knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, queryFile, useRBO);
-    //     Evaluator evaluatorTest = new Evaluator(qrelsFile, resFile); // load ret and rel
-    //     QPPEvaluator qppEvaluatorTest = new QPPEvaluator(
-    //             queryFile, qrelsFile,
-    //             new KendalCorrelation(), retriever.getSearcher(), Constants.QPP_NUM_TOPK);
-    //     List<MsMarcoQuery> testQueries = qppEvaluatorTest.constructQueries(queryFile); // these queries are different from train queries
+        KNNRelModel knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, queryFile, useRBO);
+        Evaluator evaluatorTest = new Evaluator(qrelsFile, resFile); // load ret and rel
+        QPPEvaluator qppEvaluatorTest = new QPPEvaluator(
+                queryFile, qrelsFile,
+                new KendalCorrelation(), retriever.getSearcher(), Constants.QPP_NUM_TOPK);
+        List<MsMarcoQuery> testQueries = qppEvaluatorTest.constructQueries(queryFile); // these queries are different from train queries
 
-    //     Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
-    //     TauAndSARE tauAndSARE = runExperiment(baseModelName, retriever.getSearcher(),
-    //                                     knnRelModel, evaluatorTest, testQueries, topDocsMapTest,
-    //                                     l, numVariants, targetMetric);
-    //     System.out.println(String.format("Target Metric: %s, tau = %.4f sARE = %.4f", targetMetric.toString(), tauAndSARE.tau, tauAndSARE.sare));
-    // }
+        Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
+        TauAndSARE tauAndSARE = runExperiment(baseModelName, retriever.getSearcher(),
+                                        knnRelModel, evaluatorTest, testQueries, topDocsMapTest,
+                                        l, numVariants, targetMetric);
+        System.out.println(String.format("Target Metric: %s, tau = %.4f sARE = %.4f", targetMetric.toString(), tauAndSARE.tau, tauAndSARE.sare));
+    }
 
     public static void main(String[] args) {
 
