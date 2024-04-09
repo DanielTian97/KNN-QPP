@@ -41,6 +41,10 @@ public class VariantSpecificity extends NQCSpecificity {
         this.auto = false;
     }
 
+    public void setScaler(double scaler){
+        this.scaler = scaler;
+    }
+
     @Override
     public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k) {
         List<MsMarcoQuery> knnQueries = null;
