@@ -142,7 +142,7 @@ public class TRECDLQPPEvaluator {
 
             TauAndSARE tauAndSARE = runExperiment(baseModelName,
                         searcher, knnRelModel, evaluatorTrain,
-                        trainQueries, topDocsMap, (float)0.5, numVariants, targetMetric, true); // lambda here has no meaning because of the auto setting
+                        trainQueries, topDocsMap, 0.5, numVariants, targetMetric, true); // lambda here has no meaning because of the auto setting
             System.out.println(String.format("Train on %s -- (%s, %d): tau = %.4f",
                         trainQueryFile, "-auto-", numVariants, tauAndSARE.tau, tauAndSARE.sare)); 
         }       
