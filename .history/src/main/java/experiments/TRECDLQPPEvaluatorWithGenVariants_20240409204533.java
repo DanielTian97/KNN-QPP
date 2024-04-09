@@ -24,13 +24,13 @@ public class TRECDLQPPEvaluatorWithGenVariants {
     static final int DL20 = 1;
     static String[] QUERY_FILES = {"data/trecdl/pass_2019.queries", "data/trecdl/pass_2020.queries"};
     static String[] QRELS_FILES = {"data/trecdl/pass_2019.qrels", "data/trecdl/pass_2020.qrels"};
-    static double scaler = -1;
+    static double scaler = 1;
 
     static void setScaler(
         Evaluator evaluator,
         List<MsMarcoQuery> queries) {
         
-        double scalerR = 0;
+        double scaler = 0;
         int countScaler = 0;
         for (MsMarcoQuery query : queries) {
 
@@ -38,12 +38,11 @@ public class TRECDLQPPEvaluatorWithGenVariants {
 
             double[] scoreList = rr.getRSVs(50);
 
-            scalerR += calculateVariation(scoreList);
+            scaler += calculateVariation(scoreList);
             countScaler ++;
         }
 
-        scaler = (scalerR/countScaler) * 10;
-        System.out.println(scaler);
+        scaler = scaler/countScaler;
     }
 
     static double runExperiment(
@@ -120,10 +119,6 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         Map<String, TopDocs> topDocsMap = evaluatorTrain.getAllRetrievedResults().castToTopDocs();
 
         OptimalHyperParams p = new OptimalHyperParams();
-
-        if(scaler == -1){
-            setScaler(evaluatorTrain, trainQueries);
-        }
 
         for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
             for (float l = 0; l <= 1; l += Constants.QPP_COREL_LAMBDA_STEPS) {

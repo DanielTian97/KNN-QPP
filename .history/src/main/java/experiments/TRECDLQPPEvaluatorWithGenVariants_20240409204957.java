@@ -42,8 +42,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             countScaler ++;
         }
 
-        scaler = (scalerR/countScaler) * 10;
-        System.out.println(scaler);
+        scaler = scalerR/countScaler;
     }
 
     static double runExperiment(
@@ -120,10 +119,6 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         Map<String, TopDocs> topDocsMap = evaluatorTrain.getAllRetrievedResults().castToTopDocs();
 
         OptimalHyperParams p = new OptimalHyperParams();
-
-        if(scaler == -1){
-            setScaler(evaluatorTrain, trainQueries);
-        }
 
         for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
             for (float l = 0; l <= 1; l += Constants.QPP_COREL_LAMBDA_STEPS) {

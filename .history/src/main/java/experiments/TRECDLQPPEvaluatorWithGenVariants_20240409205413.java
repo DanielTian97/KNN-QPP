@@ -42,7 +42,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             countScaler ++;
         }
 
-        scaler = (scalerR/countScaler) * 10;
+        scaler = (scalerR/countScaler) * 3;
         System.out.println(scaler);
     }
 

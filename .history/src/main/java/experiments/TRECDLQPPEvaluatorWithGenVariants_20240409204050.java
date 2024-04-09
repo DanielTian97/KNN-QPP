@@ -24,13 +24,18 @@ public class TRECDLQPPEvaluatorWithGenVariants {
     static final int DL20 = 1;
     static String[] QUERY_FILES = {"data/trecdl/pass_2019.queries", "data/trecdl/pass_2020.queries"};
     static String[] QRELS_FILES = {"data/trecdl/pass_2019.qrels", "data/trecdl/pass_2020.qrels"};
-    static double scaler = -1;
+    static double scaler = 1;
 
     static void setScaler(
+        String baseQPPModelName, // nqc/uef
+        IndexSearcher searcher,
+        KNNRelModel knnRelModel,
         Evaluator evaluator,
-        List<MsMarcoQuery> queries) {
+        List<MsMarcoQuery> queries,
+        Map<String, TopDocs> topDocsMap,
+        float lambda, int numVariants, Metric targetMetric) {
         
-        double scalerR = 0;
+        double scaler = 0;
         int countScaler = 0;
         for (MsMarcoQuery query : queries) {
 
@@ -38,12 +43,11 @@ public class TRECDLQPPEvaluatorWithGenVariants {
 
             double[] scoreList = rr.getRSVs(50);
 
-            scalerR += calculateVariation(scoreList);
+            scaler += calculateVariation(scoreList);
             countScaler ++;
         }
 
-        scaler = (scalerR/countScaler) * 10;
-        System.out.println(scaler);
+        scaler = scaler/countScaler;
     }
 
     static double runExperiment(
@@ -121,10 +125,6 @@ public class TRECDLQPPEvaluatorWithGenVariants {
 
         OptimalHyperParams p = new OptimalHyperParams();
 
-        if(scaler == -1){
-            setScaler(evaluatorTrain, trainQueries);
-        }
-
         for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
             for (float l = 0; l <= 1; l += Constants.QPP_COREL_LAMBDA_STEPS) {
                 double kendals = runExperiment(baseModelName,
@@ -163,73 +163,73 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         return kendals_Test;
     }
 
-    // static double trainAndTest(
-    //         String baseModelName,
-    //         OneStepRetriever retriever,
-    //         Metric targetMetric,
-    //         String trainQueryFile,
-    //         String trainQrelsFile,
-    //         String testQueryFile,
-    //         String testQrelsFile,
-    //         String trainResFile,
-    //         String testResFile,
-    //         int maxNumVariants,
-    //         int maxNumNeighbors
-    // )
-    //         throws Exception {
+    static double trainAndTest(
+            String baseModelName,
+            OneStepRetriever retriever,
+            Metric targetMetric,
+            String trainQueryFile,
+            String trainQrelsFile,
+            String testQueryFile,
+            String testQrelsFile,
+            String trainResFile,
+            String testResFile,
+            int maxNumVariants,
+            int maxNumNeighbors
+    )
+            throws Exception {
 
-    //     IndexSearcher searcher = retriever.getSearcher();
-    //     KNNRelModel knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, trainQueryFile);
+        IndexSearcher searcher = retriever.getSearcher();
+        KNNRelModel knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, trainQueryFile);
 
-    //     Evaluator evaluatorTrain = new Evaluator(trainQrelsFile, trainResFile); // load ret and rel
-    //     List<MsMarcoQuery> trainQueries = knnRelModel.getQueries();
+        Evaluator evaluatorTrain = new Evaluator(trainQrelsFile, trainResFile); // load ret and rel
+        List<MsMarcoQuery> trainQueries = knnRelModel.getQueries();
 
-    //     Map<String, TopDocs> topDocsMap = evaluatorTrain.getAllRetrievedResults().castToTopDocs();
+        Map<String, TopDocs> topDocsMap = evaluatorTrain.getAllRetrievedResults().castToTopDocs();
 
-    //     OptimalHyperParams p = new OptimalHyperParams();
+        OptimalHyperParams p = new OptimalHyperParams();
 
-    //     for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
-    //         for (int numNeighbors = 1; numNeighbors <= maxNumNeighbors; numNeighbors++) {
-    //             for (float l = 0; l <= 1; l += .2f) {
-    //                 for (float m = 0; m <= 1; m += .2f) {
-    //                     double kendals = runExperiment(baseModelName,
-    //                             searcher, knnRelModel, evaluatorTrain,
-    //                             trainQueries, topDocsMap, l, numVariants, targetMetric);
+        for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
+            for (int numNeighbors = 1; numNeighbors <= maxNumNeighbors; numNeighbors++) {
+                for (float l = 0; l <= 1; l += .2f) {
+                    for (float m = 0; m <= 1; m += .2f) {
+                        double kendals = runExperiment(baseModelName,
+                                searcher, knnRelModel, evaluatorTrain,
+                                trainQueries, topDocsMap, l, numVariants, targetMetric);
 
-    //                     System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f",
-    //                             trainQueryFile, l, numVariants, kendals));
-    //                     if (kendals > p.kendals) {
-    //                         p.l = l;
-    //                         p.m = m;
-    //                         p.numNeighbors = numNeighbors;
-    //                         p.numVariants = numVariants;
-    //                         p.kendals = kendals; // keep track of max
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     System.out.println(String.format("The best settings: lambda=%.1f, mu=%.1f, nv=%d nn=%d", p.l, p.m, p.numVariants, p.numNeighbors));
-    //     // apply this setting on the test set
-    //     KNNRelModel knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile);
+                        System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f",
+                                trainQueryFile, l, numVariants, kendals));
+                        if (kendals > p.kendals) {
+                            p.l = l;
+                            p.m = m;
+                            p.numNeighbors = numNeighbors;
+                            p.numVariants = numVariants;
+                            p.kendals = kendals; // keep track of max
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println(String.format("The best settings: lambda=%.1f, mu=%.1f, nv=%d nn=%d", p.l, p.m, p.numVariants, p.numNeighbors));
+        // apply this setting on the test set
+        KNNRelModel knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile);
 
-    //     Evaluator evaluatorTest = new Evaluator(testQrelsFile, testResFile); // load ret and rel
-    //     QPPEvaluator qppEvaluatorTest = new QPPEvaluator(
-    //             testQueryFile, testQrelsFile,
-    //             new KendalCorrelation(), retriever.getSearcher(), Constants.QPP_NUM_TOPK);
-    //     List<MsMarcoQuery> testQueries = qppEvaluatorTest.constructQueries(testQueryFile); // these queries are different from train queries
+        Evaluator evaluatorTest = new Evaluator(testQrelsFile, testResFile); // load ret and rel
+        QPPEvaluator qppEvaluatorTest = new QPPEvaluator(
+                testQueryFile, testQrelsFile,
+                new KendalCorrelation(), retriever.getSearcher(), Constants.QPP_NUM_TOPK);
+        List<MsMarcoQuery> testQueries = qppEvaluatorTest.constructQueries(testQueryFile); // these queries are different from train queries
 
-    //     Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
-    //     double kendals_Test = runExperiment(baseModelName,
-    //             searcher, knnRelModelTest,
-    //             evaluatorTest, testQueries, topDocsMapTest, p.l, p.numVariants, targetMetric);
+        Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
+        double kendals_Test = runExperiment(baseModelName,
+                searcher, knnRelModelTest,
+                evaluatorTest, testQueries, topDocsMapTest, p.l, p.numVariants, targetMetric);
 
-    //     System.out.println(String.format(
-    //             "Kendal's on %s with lambda=%.1f, mu=%.1f, M=%d, N=%d: %.4f",
-    //             testQueryFile, p.l, p.m, p.numVariants, p.numNeighbors, kendals_Test));
+        System.out.println(String.format(
+                "Kendal's on %s with lambda=%.1f, mu=%.1f, M=%d, N=%d: %.4f",
+                testQueryFile, p.l, p.m, p.numVariants, p.numNeighbors, kendals_Test));
 
-    //     return kendals_Test;
-    // }
+        return kendals_Test;
+    }
 
     static void runSingleExperiment(
             String baseModelName,
