@@ -69,25 +69,6 @@ public class VariantSpecificity extends NQCSpecificity {
                 baseModel.computeSpecificity(q, retInfo, topDocs, k);
     }
 
-    public double preComputeRatio(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k){
-        List<MsMarcoQuery> knnQueries = null;
-
-        double variantSpec = 0;
-        double currentSpec = baseModel.computeSpecificity(q, retInfo, topDocs, k);
-
-        try {
-            knnQueries = knnRelModel.getKNNs(q, this.numVariants);
-
-            if (knnQueries!=null && !knnQueries.isEmpty()) {
-                variantSpec = variantSpecificity(q, knnQueries, retInfo, topDocs, k);
-            }
-
-        }
-        catch (Exception ex) { ex.printStackTrace(); }
-
-        return knnQueries!=null ? (currentSpec / variantSpec) : -1;
-    }
-
     double variantSpecificity(MsMarcoQuery q, List<MsMarcoQuery> knnQueries,
                               RetrievedResults retInfo, TopDocs topDocs, int k) throws Exception {
         double specScore = 0;
