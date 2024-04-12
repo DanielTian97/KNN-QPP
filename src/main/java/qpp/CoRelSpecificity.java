@@ -24,26 +24,47 @@ public class CoRelSpecificity extends VariantSpecificity {
         super(baseModel, searcher, knnRelModel, numVariants, lambda);   //I deleted ', boolean normaliseScores'
     }
 
+    // @Override
+    // public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k) {
+    //     List<MsMarcoQuery> knnQueries = null;
+    //     double variantSpec = 0, colRelSpec = 0;
+    //     double qppScore = 0;
+
+    //     try {
+    //         qppScore = (1-lambda)*baseModel.computeSpecificity(q, retInfo, topDocs, k);
+    //         if (numVariants > 0)
+    //             knnQueries = knnRelModel.getKNNs(q, numVariants);
+
+    //         if (knnQueries != null) {
+    //             int numRelatedQueries = knnQueries.size();
+    //             colRelSpec = coRelsSpecificity(knnQueries.subList(0, Math.min(numVariants, numRelatedQueries)), k);
+    //             qppScore += lambda*colRelSpec;
+    //         }
+    //     }
+    //     catch (Exception ex) { ex.printStackTrace(); }
+
+    //     return qppScore;
+    // }
+
     @Override
     public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k) {
         List<MsMarcoQuery> knnQueries = null;
-        double variantSpec = 0, colRelSpec = 0;
-        double qppScore = 0;
+        double variantSpec = 0;
 
         try {
-            qppScore = (1-lambda)*baseModel.computeSpecificity(q, retInfo, topDocs, k);
             if (numVariants > 0)
                 knnQueries = knnRelModel.getKNNs(q, numVariants);
 
-            if (knnQueries != null) {
-                int numRelatedQueries = knnQueries.size();
-                colRelSpec = coRelsSpecificity(knnQueries.subList(0, Math.min(numVariants, numRelatedQueries)), k);
-                qppScore += lambda*colRelSpec;
+            if (knnQueries!=null && !knnQueries.isEmpty()) {
+                variantSpec = coRelSpecificity(q, knnQueries, retInfo, topDocs, k);
             }
+
         }
         catch (Exception ex) { ex.printStackTrace(); }
 
-        return qppScore;
+        return knnQueries!=null?
+                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler:
+                baseModel.computeSpecificity(q, retInfo, topDocs, k);
     }
 
     double coRelsSpecificity(List<MsMarcoQuery> knnQueries, int k) throws Exception {
