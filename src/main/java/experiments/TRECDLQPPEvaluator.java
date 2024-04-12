@@ -54,13 +54,26 @@ public class TRECDLQPPEvaluator {
             float lambda, int numVariants, Metric targetMetric) {
 
         QPPMethod baseModel = baseQPPModelName.equals("nqc")? new NQCSpecificity(searcher): new UEFSpecificity(new NQCSpecificity(searcher));
-        VariantSpecificity qppMethod = new VariantSpecificity(
-                baseModel,
-                searcher,
-                knnRelModel,
-                numVariants,
-                lambda
-        ); // I changed it to the subclass, is it ok?
+
+        boolean useClarity = true; // hard coded temporarily
+        if(useClarity){
+            VariantSpecificity qppMethod = new CoRelSpecificity(
+                    baseModel,
+                    searcher,
+                    knnRelModel,
+                    numVariants,
+                    lambda
+            );             
+        } else {
+            VariantSpecificity qppMethod = new VariantSpecificity(
+                    baseModel,
+                    searcher,
+                    knnRelModel,
+                    numVariants,
+                    lambda
+            ); // I changed it to the subclass, is it ok?
+            // qppMethod.setScaler(scaler);
+        } 
 
         int numQueries = queries.size();
         double[] qppEstimates = new double[numQueries];
