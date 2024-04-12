@@ -105,7 +105,7 @@ public class CoRelSpecificity extends VariantSpecificity {
             z += refSim;
         }
 
-        return z==0? baseModel.computeSpecificity(q, retInfo, topDocs, k): specScore/z;
+        return z==0? baseModel.computeSpecificity(q, retInfo, topDocs, k): corelScore/z;
     }
 
 }
