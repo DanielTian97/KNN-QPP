@@ -7,6 +7,7 @@ import qpp.NQCSpecificity;
 import qpp.QPPMethod;
 import qpp.UEFSpecificity;
 import qpp.VariantSpecificity;
+import qpp.CoRelSpecificity;
 import qrels.Evaluator;
 import qrels.Metric;
 import qrels.RetrievedResults;
@@ -26,7 +27,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
     static String[] QRELS_FILES = {"data/trecdl/pass_2019.qrels", "data/trecdl/pass_2020.qrels"};
     static double scaler = -1;
 
-    static void setScaler(
+    static void updateScaler(
         Evaluator evaluator,
         List<MsMarcoQuery> queries) {
         
@@ -42,7 +43,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             countScaler ++;
         }
 
-        scaler = (scalerR/countScaler)*0.1;
+        scaler = (scalerR/countScaler) * 1;
         System.out.println(scaler);
     }
 
@@ -58,14 +59,25 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         double kendals = 0;
 
         QPPMethod baseModel = baseQPPModelName.equals("nqc")? new NQCSpecificity(searcher): new UEFSpecificity(new NQCSpecificity(searcher));
-        VariantSpecificity qppMethod = new VariantSpecificity(
-                baseModel,
-                searcher,
-                knnRelModel,
-                numVariants,
-                lambda
-        ); // I changed it to the subclass, is it ok?
-        qppMethod.setScaler(scaler);
+
+        if(useClarity){
+            VariantSpecificity qppMethod = new CoRelSpecificity(
+                    baseModel,
+                    searcher,
+                    knnRelModel,
+                    numVariants,
+                    lambda
+            );             
+        } else {
+            VariantSpecificity qppMethod = new VariantSpecificity(
+                    baseModel,
+                    searcher,
+                    knnRelModel,
+                    numVariants,
+                    lambda
+            ); // I changed it to the subclass, is it ok?
+            // qppMethod.setScaler(scaler);
+        } 
 
         int numQueries = queries.size();
         double[] qppEstimates = new double[numQueries];
@@ -121,9 +133,9 @@ public class TRECDLQPPEvaluatorWithGenVariants {
 
         OptimalHyperParams p = new OptimalHyperParams();
 
-        if(scaler == -1){
-            setScaler(evaluatorTrain, trainQueries);
-        }
+        // if(scaler == -1){
+        //     updateScaler(evaluatorTrain, trainQueries);
+        // }
 
         for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
             for (float l = 0; l <= 1; l += Constants.QPP_COREL_LAMBDA_STEPS) {

@@ -16,7 +16,7 @@ public class VariantSpecificity extends NQCSpecificity {
     KNNRelModel knnRelModel;
     int numVariants;
     float lambda;
-    double scaler; // to scale the current query's retrieval scores
+    double scaler; // to scale the current query's retrieval scores; THIS IDEA IS CEASED TO USE.
 
     public VariantSpecificity(QPPMethod baseModel,
                               IndexSearcher searcher, KNNRelModel knnRelModel,
@@ -33,6 +33,22 @@ public class VariantSpecificity extends NQCSpecificity {
 
     public void setScaler(double scaler){
         this.scaler = scaler;
+    }
+
+    RetrievedResults normaliseScores(RetrievedResults retInfo) {
+        double minScore = retInfo.getTuples()
+                .stream().map(x->x.getScore()).reduce(Double::min).get();
+        double maxScore = retInfo.getTuples()
+                .stream().map(x->x.getScore()).reduce(Double::max).get();
+        double diff = maxScore - minScore;
+
+        if (norlamiseScores) {
+            retInfo.getTuples()
+                    .forEach(
+                            x -> x.setScore((x.getScore()-minScore)/diff)
+                    );
+        }
+        return retInfo;
     }
 
     @Override
