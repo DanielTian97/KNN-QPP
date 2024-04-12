@@ -44,7 +44,7 @@ public class VariantSpecificity extends NQCSpecificity {
                 .stream().map(x->x.getScore()).reduce(Double::max).get();
         double diff = maxScore - minScore;
 
-        if (norlamiseScores) {
+        if (this.doNormalisation) {
             retInfo.getTuples()
                     .forEach(
                             x -> x.setScore((x.getScore()-minScore)/diff)
