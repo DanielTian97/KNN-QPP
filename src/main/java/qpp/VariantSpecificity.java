@@ -17,7 +17,7 @@ public class VariantSpecificity extends NQCSpecificity {
     int numVariants;
     float lambda;
     double scaler; // to scale the current query's retrieval scores; THIS IDEA IS CEASED TO USE.
-    boolean normaliseScores; //temporarily hard coded
+    boolean doNormalisation; //temporarily hard coded
 
     public VariantSpecificity(QPPMethod baseModel,
                               IndexSearcher searcher, KNNRelModel knnRelModel,
@@ -30,7 +30,7 @@ public class VariantSpecificity extends NQCSpecificity {
         this.numVariants = numVariants;
         this.lambda = lambda;
         this.scaler = 1;
-        this.norlamiseScores = false;
+        this.doNormalisation = false;
     }
 
     public void setScaler(double scaler){

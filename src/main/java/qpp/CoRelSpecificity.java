@@ -67,8 +67,9 @@ public class CoRelSpecificity extends VariantSpecificity {
             }
 
             RetrievedResults topQueriesRetrievedResults = new RetrievedResults(rq.getId(), topQueries);
-            if (norlamiseScores)
+            if (this.doNormalisation){
                 topQueriesRetrievedResults = normaliseScores(topQueriesRetrievedResults);
+            }
 
             corelEstimate = baseModel.computeSpecificity(rq, topQueriesRetrievedResults, null, k);
             refSim = rq.getRefSim();
