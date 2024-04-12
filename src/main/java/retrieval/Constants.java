@@ -49,7 +49,7 @@ public interface Constants {
     int EVAL_MIN_REL = 2;
     int NDCG_CUTOFF = 10;
 
-    boolean USE_CLARITY = true;
+    boolean USE_CLARITY = false;
     int CLARITY_CAL_RANGE = 5;
 
     int RBO_NUM_DOCS = 20;

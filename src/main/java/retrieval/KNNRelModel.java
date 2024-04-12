@@ -115,7 +115,7 @@ public class KNNRelModel extends SupervisedRLM {
             if (knnQueries == null) {
                 knnQueries = q.retrieveSimilarQueries(
                         getQueryIndexSearcher(),
-                        2 * Constants.QPP_COREL_MAX_VARIANTS)
+                        1 * Constants.QPP_COREL_MAX_VARIANTS)
                 ;
 
                 // Replace BM25 similarities with RBO similarities. Just to be consistent with gen variants...
