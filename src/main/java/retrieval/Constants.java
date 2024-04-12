@@ -49,8 +49,8 @@ public interface Constants {
     int EVAL_MIN_REL = 2;
     int NDCG_CUTOFF = 10;
 
-    boolean USE_CLARITY = false;
-    int CLARITY_CAL_RANGE = 5;
+    boolean USE_CLARITY = true;
+    int CLARITY_CAL_RANGE = 50;
 
     int RBO_NUM_DOCS = 20;
     String QPP_JM_VARIANTS_FILE_W2V = "variants/trecdl_qv_w2v.csv";
