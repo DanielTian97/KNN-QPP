@@ -56,7 +56,7 @@ public class CoRelSpecificity extends VariantSpecificity {
                 knnQueries = knnRelModel.getKNNs(q, numVariants);
 
             if (knnQueries!=null && !knnQueries.isEmpty()) {
-                variantSpec = coRelsSpecificity(q, knnQueries, retInfo, topDocs, k);
+                variantSpec = coRelsSpecificity(knnQueries, k);
             }
 
         }
@@ -93,7 +93,7 @@ public class CoRelSpecificity extends VariantSpecificity {
             // }
             topQueriesRetrievedResults = normaliseScores(topQueriesRetrievedResults); // do normalisation compulsorily
 
-            corelEstimate = baseModel.computeSpecificity(rq, topQueriesRetrievedResults, null, k);
+            corelEstimate = baseModel.computeSpecificity(rq, topQueriesRetrievedResults, null, Constants.CLARITY_CAL_RANGE);
             refSim = rq.getRefSim();
 
             corelScore += refSim * corelEstimate;
