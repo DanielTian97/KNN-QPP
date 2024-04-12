@@ -91,7 +91,7 @@ public class CoRelSpecificity extends VariantSpecificity {
             // if (this.doNormalisation){
             //     topQueriesRetrievedResults = normaliseScores(topQueriesRetrievedResults);
             // }
-            topQueriesRetrievedResults = normaliseScores(topQueriesRetrievedResults); // do normalisation compulsorily
+            // topQueriesRetrievedResults = normaliseScores(topQueriesRetrievedResults); // do normalisation compulsorily
 
             corelEstimate = baseModel.computeSpecificity(rq, topQueriesRetrievedResults, null, Constants.CLARITY_CAL_RANGE);
 
