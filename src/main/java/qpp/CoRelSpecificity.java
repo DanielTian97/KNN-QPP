@@ -56,7 +56,7 @@ public class CoRelSpecificity extends VariantSpecificity {
                 knnQueries = knnRelModel.getKNNs(q, numVariants);
 
             if (knnQueries!=null && !knnQueries.isEmpty()) {
-                variantSpec = coRelsSpecificity(knnQueries, k);
+                variantSpec = coRelsSpecificity(q, knnQueries, retInfo, topDocs, k);
             }
 
         }
@@ -67,7 +67,7 @@ public class CoRelSpecificity extends VariantSpecificity {
                 baseModel.computeSpecificity(q, retInfo, topDocs, k);
     }
 
-    double coRelsSpecificity(List<MsMarcoQuery> knnQueries, int k) throws Exception {
+    double coRelsSpecificity(MsMarcoQuery q, List<MsMarcoQuery> knnQueries, RetrievedResults retInfo, TopDocs topDocs, int k) throws Exception {
 
         int i = 1;
         double corelScore = 0, corelEstimate = 0, refSim;
@@ -95,7 +95,7 @@ public class CoRelSpecificity extends VariantSpecificity {
 
             corelEstimate = baseModel.computeSpecificity(rq, topQueriesRetrievedResults, null, Constants.CLARITY_CAL_RANGE);
 
-            if(variantSpecScore == -1){
+            if(corelEstimate == -1){
                 refSim = 0;
             } else {
                 refSim = rq.getRefSim();
