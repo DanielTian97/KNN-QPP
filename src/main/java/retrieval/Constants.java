@@ -50,7 +50,7 @@ public interface Constants {
     int NDCG_CUTOFF = 10;
 
     boolean USE_CLARITY = true;
-    int CLARITY_CAL_RANGE = 10;
+    int CLARITY_CAL_RANGE = 5;
 
     int RBO_NUM_DOCS = 20;
     String QPP_JM_VARIANTS_FILE_W2V = "variants/trecdl_qv_w2v.csv";
