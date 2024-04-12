@@ -94,13 +94,18 @@ public class CoRelSpecificity extends VariantSpecificity {
             topQueriesRetrievedResults = normaliseScores(topQueriesRetrievedResults); // do normalisation compulsorily
 
             corelEstimate = baseModel.computeSpecificity(rq, topQueriesRetrievedResults, null, Constants.CLARITY_CAL_RANGE);
-            refSim = rq.getRefSim();
+
+            if(variantSpecScore == -1){
+                refSim = 0;
+            } else {
+                refSim = rq.getRefSim();
+            }
 
             corelScore += refSim * corelEstimate;
             z += refSim;
         }
 
-        return corelScore/z;
+        return z==0? baseModel.computeSpecificity(q, retInfo, topDocs, k): specScore/z;
     }
 
 }
