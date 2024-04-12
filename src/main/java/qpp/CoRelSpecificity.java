@@ -57,7 +57,7 @@ public class CoRelSpecificity extends VariantSpecificity {
 
             if (knnQueries!=null && !knnQueries.isEmpty()) {
                 coRelSpec = coRelsSpecificity(q, knnQueries, retInfo, topDocs, k);
-                variantSpec = variantSpecificity(q, knnQueries, retInfo, topDocs, k);
+                variantSpec = super.variantSpecificity(q, knnQueries, retInfo, topDocs, k);
             }
 
         }
