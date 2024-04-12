@@ -61,10 +61,10 @@ public class CoRelSpecificity extends VariantSpecificity {
             MsMarcoQuery docQuery = new MsMarcoQuery(docName, docText);
 
             TopDocs topQueries = knnRelModel.getQueryIndexSearcher().search(docQuery.getQuery(), Constants.CLARITY_CAL_RANGE); // NOW THE NUMBER IS 5
-            System.out.println("Rel doc: " + docText);
-            for (ScoreDoc sd: topQueries.scoreDocs) {
-                System.out.println("Retrieved query: " + knnRelModel.getQueryIndexSearcher().getIndexReader().document(sd.doc).get(Constants.CONTENT_FIELD) + ", score: " + sd.score);
-            }
+            // System.out.println("Rel doc: " + docText);
+            // for (ScoreDoc sd: topQueries.scoreDocs) {
+            //     System.out.println("Retrieved query: " + knnRelModel.getQueryIndexSearcher().getIndexReader().document(sd.doc).get(Constants.CONTENT_FIELD) + ", score: " + sd.score);
+            // }
 
             RetrievedResults topQueriesRetrievedResults = new RetrievedResults(rq.getId(), topQueries);
             if (this.doNormalisation){
