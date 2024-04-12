@@ -50,6 +50,7 @@ public class CoRelSpecificity extends VariantSpecificity {
     public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k) {
         List<MsMarcoQuery> knnQueries = null;
         double coRelSpec = 0;
+        double variantSpec = 0;
 
         try {
             if (numVariants > 0)
@@ -57,7 +58,7 @@ public class CoRelSpecificity extends VariantSpecificity {
 
             if (knnQueries!=null && !knnQueries.isEmpty()) {
                 coRelSpec = coRelsSpecificity(q, knnQueries, retInfo, topDocs, k);
-                variantSpec = super.variantSpecificity(q, knnQueries, retInfo, topDocs, k);
+                variantSpec = variantSpecificity(q, knnQueries, retInfo, topDocs, k);
             }
 
         }
