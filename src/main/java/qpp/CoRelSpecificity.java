@@ -49,21 +49,22 @@ public class CoRelSpecificity extends VariantSpecificity {
     @Override
     public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k) {
         List<MsMarcoQuery> knnQueries = null;
-        double variantSpec = 0;
+        double coRelSpec = 0;
 
         try {
             if (numVariants > 0)
                 knnQueries = knnRelModel.getKNNs(q, numVariants);
 
             if (knnQueries!=null && !knnQueries.isEmpty()) {
-                variantSpec = coRelsSpecificity(q, knnQueries, retInfo, topDocs, k);
+                coRelSpec = coRelsSpecificity(q, knnQueries, retInfo, topDocs, k);
+                variantSpec = variantSpecificity(q, knnQueries, retInfo, topDocs, k);
             }
 
         }
         catch (Exception ex) { ex.printStackTrace(); }
 
         return knnQueries!=null?
-                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler:
+                0.9 * lambda * variantSpec + 0.1 * lambda * coRelSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler:
                 baseModel.computeSpecificity(q, retInfo, topDocs, k);
     }
 
