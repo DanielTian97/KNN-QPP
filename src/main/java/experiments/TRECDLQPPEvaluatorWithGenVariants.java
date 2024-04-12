@@ -60,7 +60,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
 
         QPPMethod baseModel = baseQPPModelName.equals("nqc")? new NQCSpecificity(searcher): new UEFSpecificity(new NQCSpecificity(searcher));
 
-        boolean useClarity = true; // hard coded temporarily
+        boolean useClarity = Constants.USE_CLARITY; // hard coded temporarily
         VariantSpecificity qppMethod;
         if(useClarity){
             qppMethod = new CoRelSpecificity(

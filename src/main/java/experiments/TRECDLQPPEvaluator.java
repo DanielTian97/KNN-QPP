@@ -55,7 +55,7 @@ public class TRECDLQPPEvaluator {
 
         QPPMethod baseModel = baseQPPModelName.equals("nqc")? new NQCSpecificity(searcher): new UEFSpecificity(new NQCSpecificity(searcher));
 
-        boolean useClarity = true; // hard coded temporarily
+        boolean useClarity = Constants.USE_CLARITY; // hard coded temporarily
         VariantSpecificity qppMethod;
         if(useClarity){
             qppMethod = new CoRelSpecificity(
@@ -81,14 +81,10 @@ public class TRECDLQPPEvaluator {
         double[] evaluatedMetricValues = new double[numQueries];
 
         int i = 0;
-        double scaler_base = -1;
 
         for (MsMarcoQuery query : queries) {
             RetrievedResults rr = evaluator.getRetrievedResultsForQueryId(query.getId());
-            if(scaler_base == -1){
-                scaler_base = rr.getRSVs(1)[0];
-                qppMethod.setScaler(Math.pow(scaler_base, 2));
-            }
+
             TopDocs topDocs = topDocsMap.get(query.getId());
 
             evaluatedMetricValues[i] = evaluator.compute(query.getId(), targetMetric);

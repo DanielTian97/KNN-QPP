@@ -48,6 +48,8 @@ public interface Constants {
     int QPP_NUM_TOPK = 50;
     int EVAL_MIN_REL = 2;
     int NDCG_CUTOFF = 10;
+
+    boolean USE_CLARITY = false;
     int CLARITY_CAL_RANGE = 5;
 
     int RBO_NUM_DOCS = 20;
