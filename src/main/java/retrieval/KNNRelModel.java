@@ -151,7 +151,7 @@ public class KNNRelModel extends SupervisedRLM {
         return knnQueries;
     }
 
-    List<MsMarcoQuery> extendRetrievedKnnQueries (List<MsMarcoQuery> RetrievedKnnQueries){
+    List<MsMarcoQuery> extendRetrievedKnnQueries (List<MsMarcoQuery> RetrievedKnnQueries) throws Exception {
         List<MsMarcoQuery> qVExtensions = new ArrayList<MsMarcoQuery>();
         
         for (MsMarcoQuery rq : RetrievedKnnQueries) {
