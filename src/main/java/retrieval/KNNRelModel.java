@@ -62,7 +62,7 @@ public class KNNRelModel extends SupervisedRLM {
     }
 
     public KNNRelModel(String qrelFile, String queryFile) throws Exception {
-        this(qrelFile, queryFile, false);
+        this(qrelFile, queryFile, false, false);
     }
 
     public KNNRelModel(String qrelFile, String queryFile, boolean useRBO, boolean extendQV) throws Exception {
