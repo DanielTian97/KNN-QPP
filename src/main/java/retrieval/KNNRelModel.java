@@ -217,7 +217,7 @@ public class KNNRelModel extends SupervisedRLM {
         return topA==null||topB==null? 0 : (float)OverlapStats.computeRBO(topA, topB);
     }
 
-    void constructKNNMap(String variantsFile, String variantsQidFile, String scoreFile, boolean extendToRelQueryFromDocs, boolean useRBO) throws Exception {
+    void constructKNNMap(String variantsFile, String variantsQidFile, String scoreFile, boolean extendQV, boolean useRBO) throws Exception {
         knnQueryMap = new HashMap<>();
 
         List<String> textLines = FileUtils.readLines(new File(variantsFile), StandardCharsets.UTF_8);
@@ -253,12 +253,13 @@ public class KNNRelModel extends SupervisedRLM {
                 }
                 rq.relDocs = rels.getRelInfo(rq.qid);
 
-                if (extendToRelQueryFromDocs){
-                    // System.out.println(knnQueries.size());
-                    // queries which are in fact docs
-                    knnQueries = getRelDocsSimQuery(rq, knnQueries);
-                    // System.out.println(knnQueries.size());
-                }
+                // // aborted!!!!!
+                // if (extendToRelQueryFromDocs){
+                //     // System.out.println(knnQueries.size());
+                //     // queries which are in fact docs
+                //     knnQueries = getRelDocsSimQuery(rq, knnQueries);
+                //     // System.out.println(knnQueries.size());
+                // }
 
                 MsMarcoQuery testQuery = queryMap.get(qid);
                 if (testQuery==null)
@@ -268,12 +269,26 @@ public class KNNRelModel extends SupervisedRLM {
                 knnQueries.add(rq);
 
             }
+
             if (useRBO) {
                 for (MsMarcoQuery knnQuery : knnQueries)
                     knnQuery.setRefSim(computeRBO(q, knnQuery));
 
                 knnQueries = knnQueries.stream().limit(Constants.QPP_COREL_MAX_VARIANTS).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
                 //knnQueries.stream().forEach(System.out::println);
+            }
+
+            // I realise it is not needed to create a special method for it
+            if(extendQV) {
+                List<MsMarcoQuery> qVExtensions = extendRetrievedKnnQueries(knnQueries);
+                knnQueries.addAll(qVExtensions);
+
+                // rerank
+                for (MsMarcoQuery knnQuery : knnQueries) {
+                    knnQuery.setRefSim(computeRBO(q, knnQuery));
+                }
+                // sort after reranking
+                knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
             }
 
         }     
