@@ -141,12 +141,12 @@ public class KNNRelModel extends SupervisedRLM {
 
         // Replace BM25 similarities with RBO similarities. Just to be consistent with gen variants...
         if (useRBO) {
-            for (MsMarcoQuery knnQuery : knnQueries)
+            for (MsMarcoQuery knnQuery : knnQueries) {
                 knnQuery.setRefSim(computeRBO(q, knnQuery));
-
-                knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
             }
-        };
+
+            knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        }
 
         return knnQueries;
     }
@@ -171,8 +171,8 @@ public class KNNRelModel extends SupervisedRLM {
                         // foundQueriesForQ.remove(rrq);
                         kept = false;
                         break;
-                    };
-                };
+                    }
+                }
 
                 if(kept) {
                     for (MsMarcoQuery qVE : qVExtensions) {
@@ -180,12 +180,12 @@ public class KNNRelModel extends SupervisedRLM {
                             kept = false;
                             break;
                         }
-                    };
+                    }
                     if(kept){
                         qVExtensions.add(rq);
-                    };
-                };
-            };
+                    }
+                }
+            }
 
         }
 
