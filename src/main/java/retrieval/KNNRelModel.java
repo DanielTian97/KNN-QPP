@@ -136,7 +136,7 @@ public class KNNRelModel extends SupervisedRLM {
         
     // }
 
-    List<MsMarcoQuery> retrieveBM25KnnQueries (MsMarcoQuery q, boolean useRBO){
+    List<MsMarcoQuery> retrieveBM25KnnQueries (MsMarcoQuery q, boolean useRBO) throws Exception {
         List<MsMarcoQuery> knnQueries = q.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.QPP_COREL_MAX_VARIANTS);
 
         // Replace BM25 similarities with RBO similarities. Just to be consistent with gen variants...
