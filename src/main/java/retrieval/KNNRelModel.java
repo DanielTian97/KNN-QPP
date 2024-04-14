@@ -126,7 +126,7 @@ public class KNNRelModel extends SupervisedRLM {
                 //     knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
                 //     //knnQueries.stream().forEach(System.out::println);
                 // }
-                knnQueries = retrieveBM25KnnQueries(q);
+                knnQueries = retrieveBM25KnnQueries(q, useRBO);
                 knnQueryMap.put(q.getId(), knnQueries);
             }
         }
