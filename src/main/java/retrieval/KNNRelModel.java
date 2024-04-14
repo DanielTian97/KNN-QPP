@@ -146,7 +146,7 @@ public class KNNRelModel extends SupervisedRLM {
 
                 knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
             }
-        }
+        };
 
         return knnQueries;
     }
@@ -171,8 +171,8 @@ public class KNNRelModel extends SupervisedRLM {
                         // foundQueriesForQ.remove(rrq);
                         kept = false;
                         break;
-                    }
-                }
+                    };
+                };
 
                 if(kept) {
                     for (MsMarcoQuery qVE : qVExtensions) {
@@ -180,12 +180,12 @@ public class KNNRelModel extends SupervisedRLM {
                             kept = false;
                             break;
                         }
-                    }
+                    };
                     if(kept){
                         qVExtensions.add(rq);
-                    }
-                }
-            }
+                    };
+                };
+            };
 
         }
 
