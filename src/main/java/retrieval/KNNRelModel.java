@@ -136,37 +136,38 @@ public class KNNRelModel extends SupervisedRLM {
         
     // }
 
-    List<MsMarcoQuery> retrieveBM25KnnQueries (MsMarcoQuery q){
+    List<MsMarcoQuery> retrieveBM25KnnQueries (MsMarcoQuery q, useRBO){
         List<MsMarcoQuery> knnQueries = q.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.QPP_COREL_MAX_VARIANTS);
 
         // Replace BM25 similarities with RBO similarities. Just to be consistent with gen variants...
         if (useRBO) {
-        for (MsMarcoQuery knnQuery : knnQueries)
-            knnQuery.setRefSim(computeRBO(q, knnQuery));
+            for (MsMarcoQuery knnQuery : knnQueries)
+                knnQuery.setRefSim(computeRBO(q, knnQuery));
 
-            knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+                knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+            }
         }
 
         return knnQueries;
     }
 
     List<MsMarcoQuery> extendRetrievedKnnQueries (List<MsMarcoQuery> RetrievedKnnQueries){
-        List<MsMarcoQuery> qVExtensions = new List<MsMarcoQuery>();
+        List<MsMarcoQuery> qVExtensions = new ArrayList<MsMarcoQuery>();
         
         for (MsMarcoQuery rq : RetrievedKnnQueries) {
             PerQueryRelDocs relDocs = rq.getRelDocSet();
             if (relDocs==null || relDocs.getRelDocs().isEmpty())
                 continue;
             String docName = relDocs.getRelDocs().iterator().next();
-            String docText = reader.document(knnRelModel.getDocOffset(docName)).get(Constants.CONTENT_FIELD);
+            String docText = reader.document(this.getDocOffset(docName)).get(Constants.CONTENT_FIELD);
             MsMarcoQuery docQuery = new MsMarcoQuery(docName, docText);
 
             List<MsMarcoQuery> foundQueriesForQ = docQuery.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.CLARITY_CAL_RANGE);
             for(MsMarcoQuery rrq : foundQueriesForQ){
                 boolean kept = true;
 
-                for(MsMarcoQuery rq : RetrievedKnnQueries){
-                    if(rrq.getId() == rq.getId()){
+                for(MsMarcoQuery rqC : RetrievedKnnQueries){
+                    if(rrq.getId() == rqC.getId()){ //rqC means rq for comparison
                         // foundQueriesForQ.remove(rrq);
                         kept = false;
                         break;
