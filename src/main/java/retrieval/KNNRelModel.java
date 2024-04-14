@@ -113,23 +113,82 @@ public class KNNRelModel extends SupervisedRLM {
         for (MsMarcoQuery q : queries) {
             List<MsMarcoQuery> knnQueries = knnQueryMap.get(q.getId());
             if (knnQueries == null) {
-                knnQueries = q.retrieveSimilarQueries(
-                        getQueryIndexSearcher(),
-                        Constants.QPP_COREL_MAX_VARIANTS)
-                ;
+                // knnQueries = q.retrieveSimilarQueries(
+                //         getQueryIndexSearcher(),
+                //         Constants.QPP_COREL_MAX_VARIANTS)
+                // ;
 
-                // Replace BM25 similarities with RBO similarities. Just to be consistent with gen variants...
-                if (useRBO) {
-                    for (MsMarcoQuery knnQuery : knnQueries)
-                        knnQuery.setRefSim(computeRBO(q, knnQuery));
+                // // Replace BM25 similarities with RBO similarities. Just to be consistent with gen variants...
+                // if (useRBO) {
+                //     for (MsMarcoQuery knnQuery : knnQueries)
+                //         knnQuery.setRefSim(computeRBO(q, knnQuery));
 
-                    knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
-                    //knnQueries.stream().forEach(System.out::println);
-                }
-
+                //     knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+                //     //knnQueries.stream().forEach(System.out::println);
+                // }
+                knnQueries = retrieveBM25KnnQueries(q);
                 knnQueryMap.put(q.getId(), knnQueries);
             }
         }
+    }
+
+    // void constructKNNMapFlexibly(boolean useRetrievedQV, boolean extendRetrievedQV, boolean useGeneratedQV) throws Exception {
+        
+    // }
+
+    List<MsMarcoQuery> retrieveBM25KnnQueries (MsMarcoQuery q){
+        List<MsMarcoQuery> knnQueries = q.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.QPP_COREL_MAX_VARIANTS);
+
+        // Replace BM25 similarities with RBO similarities. Just to be consistent with gen variants...
+        if (useRBO) {
+        for (MsMarcoQuery knnQuery : knnQueries)
+            knnQuery.setRefSim(computeRBO(q, knnQuery));
+
+            knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        }
+
+        return knnQueries;
+    }
+
+    List<MsMarcoQuery> extendRetrievedKnnQueries (List<MsMarcoQuery> RetrievedKnnQueries){
+        List<MsMarcoQuery> qVExtensions = new List<MsMarcoQuery>();
+        
+        for (MsMarcoQuery rq : RetrievedKnnQueries) {
+            PerQueryRelDocs relDocs = rq.getRelDocSet();
+            if (relDocs==null || relDocs.getRelDocs().isEmpty())
+                continue;
+            String docName = relDocs.getRelDocs().iterator().next();
+            String docText = reader.document(knnRelModel.getDocOffset(docName)).get(Constants.CONTENT_FIELD);
+            MsMarcoQuery docQuery = new MsMarcoQuery(docName, docText);
+
+            List<MsMarcoQuery> foundQueriesForQ = docQuery.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.CLARITY_CAL_RANGE);
+            for(MsMarcoQuery rrq : foundQueriesForQ){
+                boolean kept = true;
+
+                for(MsMarcoQuery rq : RetrievedKnnQueries){
+                    if(rrq.getId() == rq.getId()){
+                        // foundQueriesForQ.remove(rrq);
+                        kept = false;
+                        break;
+                    }
+                }
+
+                if(kept) {
+                    for (MsMarcoQuery qVE : qVExtensions) {
+                        if(qVE.getId() == rq.getId()){
+                            kept = false;
+                            break;
+                        }
+                    }
+                    if(kept){
+                        qVExtensions.add(rq);
+                    }
+                }
+            }
+
+        }
+
+        return qVExtensions;
     }
 
     float computeRBO(MsMarcoQuery q, MsMarcoQuery refQ) {

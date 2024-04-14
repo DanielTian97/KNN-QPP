@@ -65,9 +65,28 @@ public class CoRelSpecificity extends VariantSpecificity {
         catch (Exception ex) { ex.printStackTrace(); }
 
         return knnQueries!=null?
-                0.9 * lambda * variantSpec + 0.1 * lambda * coRelSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler:
+                0.9 * lambda * variantSpec + 0.1 * lambda * coRelSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler: //scaler now is set to 1
                 baseModel.computeSpecificity(q, retInfo, topDocs, k);
     }
+
+    // List<MsMarcoQuery> extendQueryVariants()(MsMarcoQuery q, List<MsMarcoQuery> knnQueries) throws Exception {
+
+    //     for (MsMarcoQuery rq: knnQueries) {
+    //         PerQueryRelDocs relDocs = rq.getRelDocSet();
+    //         if (relDocs==null || relDocs.getRelDocs().isEmpty())
+    //             continue;
+    //         String docName = relDocs.getRelDocs().iterator().next();
+    //         String docText = reader.document(knnRelModel.getDocOffset(docName)).get(Constants.CONTENT_FIELD);
+    //         MsMarcoQuery docQuery = new MsMarcoQuery(docName, docText);
+
+    //         TopDocs topQueries = knnRelModel.getQueryIndexSearcher().search(docQuery.getQuery(), Constants.CLARITY_CAL_RANGE); // NOW THE NUMBER IS 5
+            
+    //         RetrievedResults topQueriesRetrievedResults = new RetrievedResults(rq.getId(), topQueries);
+            
+    //     }
+
+    //     return knnQueries;
+    // }
 
     double coRelsSpecificity(MsMarcoQuery q, List<MsMarcoQuery> knnQueries, RetrievedResults retInfo, TopDocs topDocs, int k) throws Exception {
 
