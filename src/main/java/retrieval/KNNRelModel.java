@@ -213,7 +213,7 @@ public class KNNRelModel extends SupervisedRLM {
 
                 if(kept) {
                     for (MsMarcoQuery qVE : qVExtensions) {
-                        if(qVE.getId() == rq.getId()){
+                        if(qVE.getId() == rrq.getId()){
                             kept = false;
                             break;
                         }
@@ -221,7 +221,7 @@ public class KNNRelModel extends SupervisedRLM {
                     if(kept){
                         //System.out.println(rq.getId());
                         //System.out.println(rq.getQuery());
-                        qVExtensions.add(rq);
+                        qVExtensions.add(rrq);
                     }
                 }
             }
