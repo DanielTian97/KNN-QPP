@@ -164,7 +164,7 @@ public class KNNRelModel extends SupervisedRLM {
 
         //for analysis the weight
         for(MsMarcoQuery aq : knnQueries){
-            System.out.printf("%f ", aq.getRefSim);
+            System.out.printf("%f ", aq.getRefSim());
         }
         System.out.print('\n');
 
@@ -299,7 +299,7 @@ public class KNNRelModel extends SupervisedRLM {
 
             //for analysis the weight
             for(MsMarcoQuery aq : knnQueries){
-                System.out.printf("%f ", aq.getRefSim);
+                System.out.printf("%f ", aq.getRefSim());
             }
             System.out.print('\n');
 
@@ -349,7 +349,7 @@ public class KNNRelModel extends SupervisedRLM {
 
             //for analysis the weight
             for(MsMarcoQuery aq : knnQueries){
-                System.out.printf("%f ", aq.getRefSim);
+                System.out.printf("%f ", aq.getRefSim());
             }
             System.out.print('\n');
 
