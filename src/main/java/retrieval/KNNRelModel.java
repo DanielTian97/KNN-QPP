@@ -162,11 +162,11 @@ public class KNNRelModel extends SupervisedRLM {
             knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
         }
 
-        //for analysis the weight
-        for(MsMarcoQuery aq : knnQueries){
-            System.out.printf("%f ", aq.getRefSim());
-        }
-        System.out.print('\n');
+        // //for analysis the weight
+        // for(MsMarcoQuery aq : knnQueries){
+        //     System.out.printf("%f ", aq.getRefSim());
+        // }
+        // System.out.print('\n');
 
         return knnQueries;
     }
@@ -202,6 +202,8 @@ public class KNNRelModel extends SupervisedRLM {
                         }
                     }
                     if(kept){
+                        System.out.println(rq.getId);
+                        System.out.println(rq.getQuery);
                         qVExtensions.add(rq);
                     }
                 }
@@ -297,11 +299,11 @@ public class KNNRelModel extends SupervisedRLM {
                 knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
             }
 
-            //for analysis the weight
-            for(MsMarcoQuery aq : knnQueries){
-                System.out.printf("%f ", aq.getRefSim());
-            }
-            System.out.print('\n');
+            // //for analysis the weight
+            // for(MsMarcoQuery aq : knnQueries){
+            //     System.out.printf("%f ", aq.getRefSim());
+            // }
+            // System.out.print('\n');
 
         }     
     }
@@ -347,11 +349,11 @@ public class KNNRelModel extends SupervisedRLM {
             //List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
             //knnQueries.stream().forEach(System.out::println);
 
-            //for analysis the weight
-            for(MsMarcoQuery aq : knnQueries){
-                System.out.printf("%f ", aq.getRefSim());
-            }
-            System.out.print('\n');
+            // //for analysis the weight
+            // for(MsMarcoQuery aq : knnQueries){
+            //     System.out.printf("%f ", aq.getRefSim());
+            // }
+            // System.out.print('\n');
 
         }
     }
