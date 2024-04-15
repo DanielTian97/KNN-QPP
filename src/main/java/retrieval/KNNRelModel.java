@@ -202,8 +202,8 @@ public class KNNRelModel extends SupervisedRLM {
                         }
                     }
                     if(kept){
-                        System.out.println(rq.getId);
-                        System.out.println(rq.getQuery);
+                        System.out.println(rq.getId());
+                        System.out.println(rq.getQuery());
                         qVExtensions.add(rq);
                     }
                 }
