@@ -174,7 +174,7 @@ public class KNNRelModel extends SupervisedRLM {
     List<MsMarcoQuery> extendRetrievedKnnQueries (List<MsMarcoQuery> RetrievedKnnQueries) throws Exception {
         List<MsMarcoQuery> qVExtensions = new ArrayList<MsMarcoQuery>();
 
-        System.out.print('rqs: ');
+        System.out.print("rqs: ");
         for (MsMarcoQuery rq : RetrievedKnnQueries) {
             System.out.print(rq.getId());
             System.out.print(" ");
@@ -191,9 +191,9 @@ public class KNNRelModel extends SupervisedRLM {
 
             List<MsMarcoQuery> foundQueriesForQ = docQuery.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.CLARITY_CAL_RANGE);
             
-            System.out.print('fpr rq: ');
+            System.out.print("fpr rq: ");
             System.out.print(rq.getId());
-            System.out.print(' retrieved: ');
+            System.out.print(" retrieved: ");
             for(MsMarcoQuery rrq : foundQueriesForQ){
                 System.out.print(rrq.getId());
                 System.out.print(" ");
@@ -228,7 +228,7 @@ public class KNNRelModel extends SupervisedRLM {
 
         }
         
-        System.out.print('e qvs: ');
+        System.out.print("e qvs: ");
         for (MsMarcoQuery eqv : qVExtensions) {
             System.out.print(eqv.getId());
             System.out.print(" ");
