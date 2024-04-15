@@ -174,12 +174,12 @@ public class KNNRelModel extends SupervisedRLM {
     List<MsMarcoQuery> extendRetrievedKnnQueries (List<MsMarcoQuery> RetrievedKnnQueries) throws Exception {
         List<MsMarcoQuery> qVExtensions = new ArrayList<MsMarcoQuery>();
 
-        // System.out.print("rqs: ");
-        // for (MsMarcoQuery rq : RetrievedKnnQueries) {
-        //     System.out.print(rq.getId());
-        //     System.out.print(" ");
-        // }
-        // System.out.print("\n");
+        System.out.print("rqs: ");
+        for (MsMarcoQuery rq : RetrievedKnnQueries) {
+            System.out.print(rq.getId());
+            System.out.print(" ");
+        }
+        System.out.print("\n");
         
         for (MsMarcoQuery rq : RetrievedKnnQueries) {
             PerQueryRelDocs relDocs = rq.getRelDocSet();
@@ -191,14 +191,14 @@ public class KNNRelModel extends SupervisedRLM {
 
             List<MsMarcoQuery> foundQueriesForQ = docQuery.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.CLARITY_CAL_RANGE);
             
-            // System.out.print("fpr rq: ");
-            // System.out.print(rq.getId());
-            // System.out.print(" retrieved: ");
-            // for(MsMarcoQuery rrq : foundQueriesForQ){
-            //     System.out.print(rrq.getId());
-            //     System.out.print(" ");
-            // }
-            // System.out.print("\n");
+            System.out.print("fpr rq: ");
+            System.out.print(rq.getId());
+            System.out.print(" retrieved: ");
+            for(MsMarcoQuery rrq : foundQueriesForQ){
+                System.out.print(rrq.getId());
+                System.out.print(" ");
+            }
+            System.out.print("\n");
 
             for(MsMarcoQuery rrq : foundQueriesForQ){
                 boolean kept = true;
@@ -228,12 +228,12 @@ public class KNNRelModel extends SupervisedRLM {
 
         }
         
-        // System.out.print("e qvs: ");
-        // for (MsMarcoQuery eqv : qVExtensions) {
-        //     System.out.print(eqv.getId());
-        //     System.out.print(" ");
-        // }
-        // System.out.println("\n");
+        System.out.print("e qvs: ");
+        for (MsMarcoQuery eqv : qVExtensions) {
+            System.out.print(eqv.getId());
+            System.out.print(" ");
+        }
+        System.out.println("\n");
 
         return qVExtensions;
     }
@@ -312,6 +312,14 @@ public class KNNRelModel extends SupervisedRLM {
 
             // I realise it is not needed to create a special method for it
             if(extendQV) {
+
+                System.out.print("Before extension: ");
+                for (MsMarcoQuery knnQuery : knnQueries) {
+                    System.out.print(knnQuery.getId());
+                    System.out.print(" ");
+                }
+                System.out.println("\n");
+
                 List<MsMarcoQuery> qVExtensions = extendRetrievedKnnQueries(knnQueries);
                 knnQueries.addAll(qVExtensions);
 
@@ -321,6 +329,14 @@ public class KNNRelModel extends SupervisedRLM {
                 }
                 // sort after reranking
                 knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+
+                System.out.print("After extension: ");
+                for (MsMarcoQuery knnQuery : knnQueries) {
+                    System.out.print(knnQuery.getId());
+                    System.out.print(" ");
+                }
+                System.out.println("\n");
+                
             }
 
             // //for analysis the weight
