@@ -162,6 +162,12 @@ public class KNNRelModel extends SupervisedRLM {
             knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
         }
 
+        //for analysis the weight
+        for(MsMarcoQuery q : knnQueries){
+            System.out.printf("%f ", q.getRefSim);
+        }
+        System.out.print('\n');
+
         return knnQueries;
     }
 
@@ -291,6 +297,12 @@ public class KNNRelModel extends SupervisedRLM {
                 knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
             }
 
+            //for analysis the weight
+            for(MsMarcoQuery q : knnQueries){
+                System.out.printf("%f ", q.getRefSim);
+            }
+            System.out.print('\n');
+
         }     
     }
 
@@ -334,6 +346,13 @@ public class KNNRelModel extends SupervisedRLM {
             }
             //List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
             //knnQueries.stream().forEach(System.out::println);
+
+            //for analysis the weight
+            for(MsMarcoQuery aq : knnQueries){
+                System.out.printf("%f ", aq.getRefSim);
+            }
+            System.out.print('\n');
+
         }
     }
 
