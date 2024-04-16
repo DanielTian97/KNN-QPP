@@ -106,7 +106,6 @@ public class VariantSpecificity extends NQCSpecificity {
             specScore +=  refSim * variantSpecScore ;
             z += refSim;
         }
-        System.out.println();
 
         return z==0? baseModel.computeSpecificity(q, retInfo, topDocs, k): specScore/z;
     }
