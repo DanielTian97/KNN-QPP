@@ -394,8 +394,6 @@ public class KNNRelModel extends SupervisedRLM {
                 knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
                 //knnQueries.stream().forEach(System.out::println);
             }
-
-            knnQueryMap.put(qid, knnQueries);
             //List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
             //knnQueries.stream().forEach(System.out::println);
 
