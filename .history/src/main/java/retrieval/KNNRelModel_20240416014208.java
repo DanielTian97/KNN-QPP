@@ -191,7 +191,7 @@ public class KNNRelModel extends SupervisedRLM {
 
             List<MsMarcoQuery> foundQueriesForQ = docQuery.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.CLARITY_CAL_RANGE);
             
-            System.out.print("\nfpr rq: ");
+            System.out.print("fpr rq: ");
             System.out.print(rq.getId());
             System.out.print(" retrieved: ");
             for(MsMarcoQuery rrq : foundQueriesForQ){
@@ -213,7 +213,7 @@ public class KNNRelModel extends SupervisedRLM {
 
                 if(kept) {
                     for (MsMarcoQuery qVE : qVExtensions) {
-                        System.out.printf("%s %s %b", qVE.getId(), rrq.getId(), qVE.getId() == rrq.getId());
+                        System.out.printf("%s %s %b\n", qVE.getId(), rrq.getId(), qVE.getId() == rrq.getId());
                         if(qVE.getId() == rrq.getId()){
                             kept = false;
                             break;
@@ -331,7 +331,7 @@ public class KNNRelModel extends SupervisedRLM {
                 // sort after reranking
                 knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
 
-                System.out.print("\nAfter extension: ");
+                System.out.print("After extension: ");
                 for (MsMarcoQuery knnQuery : knnQueries) {
                     System.out.print(knnQuery.getId());
                     System.out.print(" ");
