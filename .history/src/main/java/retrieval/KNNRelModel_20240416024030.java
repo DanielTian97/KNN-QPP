@@ -310,9 +310,8 @@ public class KNNRelModel extends SupervisedRLM {
             if (useRBO) {
                 for (MsMarcoQuery knnQuery : knnQueries)
                     knnQuery.setRefSim(computeRBO(q, knnQuery));
-                
-                    knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
-                // knnQueries = knnQueries.stream().limit(Constants.QPP_COREL_MAX_VARIANTS).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+
+                knnQueries = knnQueries.stream().limit(Constants.QPP_COREL_MAX_VARIANTS).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
                 //knnQueries.stream().forEach(System.out::println);
             }
 
