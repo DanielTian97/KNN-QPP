@@ -203,9 +203,9 @@ public class KNNRelModel extends SupervisedRLM {
             for(MsMarcoQuery rrq : foundQueriesForQ){
                 boolean kept = true;
 
-                // System.out.println("\nCheck QVs:");
+                System.out.println("\nCheck QVs:");
                 for(MsMarcoQuery rqC : RetrievedKnnQueries){
-                    // System.out.printf("%s %s %b", rqC.getId(), rrq.getId(), rqC.getId() == rrq.getId());
+                    System.out.printf("%s %s %b", rqC.getId(), rrq.getId(), rqC.getId() == rrq.getId());
                     if(rrq.getId().equals(rqC.getId())){ //rqC means rq for comparison
                         // foundQueriesForQ.remove(rrq);
                         kept = false;
