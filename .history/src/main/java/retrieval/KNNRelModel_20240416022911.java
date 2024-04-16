@@ -198,7 +198,7 @@ public class KNNRelModel extends SupervisedRLM {
                 System.out.print(rrq.getId());
                 System.out.print(" ");
             }
-            // System.out.print("\n");
+            System.out.print("\n");
 
             for(MsMarcoQuery rrq : foundQueriesForQ){
                 boolean kept = true;
