@@ -213,7 +213,7 @@ public class KNNRelModel extends SupervisedRLM {
                     }
                 }
 
-                System.out.println("\nCheck QVEs:");
+                System.out.println("\nCheck qVEs:");
                 if(kept) {
                     for (MsMarcoQuery qVE : qVExtensions) {
                         System.out.printf("%s %s %b", qVE.getId(), rrq.getId(), qVE.getId() == rrq.getId());
@@ -232,7 +232,7 @@ public class KNNRelModel extends SupervisedRLM {
 
         }
         
-        System.out.print("\ne qvs: ");
+        System.out.print("e qvs: ");
         for (MsMarcoQuery eqv : qVExtensions) {
             System.out.print(eqv.getId());
             System.out.print(" ");
