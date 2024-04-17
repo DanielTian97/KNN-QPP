@@ -189,7 +189,12 @@ public class KNNRelModel extends SupervisedRLM {
             String docText = reader.document(this.getDocOffset(docName)).get(Constants.CONTENT_FIELD);
             MsMarcoQuery docQuery = new MsMarcoQuery(docName, docText);
 
-            List<MsMarcoQuery> foundQueriesForQ = docQuery.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.CLARITY_CAL_RANGE);
+            List<MsMarcoQuery> foundQueriesForQ;
+            if(Constants.ABLATION_EXP_FOR_EXTENDING){
+                foundQueriesForQ = rq.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.CLARITY_CAL_RANGE);
+            } else {
+                foundQueriesForQ = docQuery.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.CLARITY_CAL_RANGE);
+            }
             
             // System.out.print("\nfor rq: ");
             // System.out.print(rq.getId());
