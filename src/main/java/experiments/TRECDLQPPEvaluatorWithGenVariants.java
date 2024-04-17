@@ -140,7 +140,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         // }
 
         for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
-            for (float l = 1; l <= 1.1; l += Constants.QPP_COREL_LAMBDA_STEPS) {
+            for (float l = 0; l <= 1.0; l += Constants.QPP_COREL_LAMBDA_STEPS) {
                 double kendals = runExperiment(baseModelName,
                         searcher, knnRelModel, evaluatorTrain,
                         trainQueries, topDocsMap, l, numVariants, targetMetric);
