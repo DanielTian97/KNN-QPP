@@ -51,7 +51,7 @@ public interface Constants {
 
     boolean USE_CLARITY = false;
     int CLARITY_CAL_RANGE = 5;
-    boolean ABLATION_EXP_FOR_EXTENDING = true;
+    boolean ABLATION_EXP_FOR_EXTENDING = false;
 
     int RBO_NUM_DOCS = 20;
     String QPP_JM_VARIANTS_FILE_W2V = "variants/trecdl_qv_w2v.csv";

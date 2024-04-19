@@ -49,8 +49,14 @@ public interface Constants {
     int EVAL_MIN_REL = 2;
     int NDCG_CUTOFF = 10;
 
+    boolean USE_CLARITY = false;
+    int CLARITY_CAL_RANGE = 5;
+    boolean ABLATION_EXP_FOR_EXTENDING = false;
+
     int RBO_NUM_DOCS = 20;
     String QPP_JM_VARIANTS_FILE_W2V = "variants/trecdl_qv_w2v.csv";
     String QPP_JM_VARIANTS_FILE_RLM = "variants/trecdl_qv_rlm.csv";
     String QPP_JM_VARIANTS_FILE_SBERT = "variants/trecdl_qv_sbert.csv";
+    String QPP_JM_VARIANTS_QID_FILE_SBERT = "variants/trecdl_qv_sbert_qid.csv";
+    String QPP_JM_SCORE_FILE_SBERT = "variants/trecdl_qv_sbert_score.csv";
 }

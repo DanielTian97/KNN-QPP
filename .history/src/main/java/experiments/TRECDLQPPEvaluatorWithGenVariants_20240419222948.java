@@ -135,6 +135,10 @@ public class TRECDLQPPEvaluatorWithGenVariants {
 
         OptimalHyperParams p = new OptimalHyperParams();
 
+        // if(scaler == -1){
+        //     updateScaler(evaluatorTrain, trainQueries);
+        // }
+
         for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
             // for (float l = 0; l <= 1.0; l += Constants.QPP_COREL_LAMBDA_STEPS) {
             for (float l = 0; l <= 0; l += Constants.QPP_COREL_LAMBDA_STEPS) {
