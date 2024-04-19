@@ -138,7 +138,7 @@ public class KNNRelModel extends SupervisedRLM {
                         knnQuery.setRefSim(computeRBO(q, knnQuery));
                     }
                     // sort after reranking
-                    knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).limit(Constants.QPP_COREL_MAX_VARIANTS).collect(Collectors.toList());
+                    knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
                 }
 
                 knnQueryMap.put(q.getId(), knnQueries);
