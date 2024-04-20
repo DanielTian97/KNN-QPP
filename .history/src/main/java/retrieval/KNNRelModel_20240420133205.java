@@ -143,7 +143,6 @@ public class KNNRelModel extends SupervisedRLM {
 
                 knnQueryMap.put(q.getId(), knnQueries);
                 
-                System.out.printf("*Q=%s\n", q);
                 for (MsMarcoQuery rq : knnQueryMap.get(q.getId())) {
                     System.out.println(rq);
                 }
