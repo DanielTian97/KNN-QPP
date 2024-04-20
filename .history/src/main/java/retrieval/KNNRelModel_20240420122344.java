@@ -284,9 +284,6 @@ public class KNNRelModel extends SupervisedRLM {
 
             String qid = tokens[0];
             MsMarcoQuery q = queryMap.get(qid);
-            if(q == null){
-                continue;
-            }
             
             List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
             // for (int i=2; i < tokens.length; i++) {
