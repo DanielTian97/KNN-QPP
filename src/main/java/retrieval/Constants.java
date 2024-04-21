@@ -53,6 +53,9 @@ public interface Constants {
     int CLARITY_CAL_RANGE = 5;
     boolean ABLATION_EXP_FOR_EXTENDING = false;
 
+    String QV_RESFILE_BASE_PATH = "qvRes";
+    boolean SAME_RETRIEVER = true;
+
     int RBO_NUM_DOCS = 20;
     String QPP_JM_VARIANTS_FILE_W2V = "variants/trecdl_qv_w2v.csv";
     String QPP_JM_VARIANTS_FILE_RLM = "variants/trecdl_qv_rlm.csv";

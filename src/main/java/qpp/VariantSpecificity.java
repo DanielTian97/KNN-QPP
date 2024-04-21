@@ -4,6 +4,8 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TopDocs;
 import qrels.ResultTuple;
 import qrels.RetrievedResults;
+import qrels.AllRetrievedResults; // for M=M' test
+import retrieval.Constants;
 import retrieval.KNNRelModel;
 import retrieval.MsMarcoQuery;
 import retrieval.TermDistribution;
@@ -18,6 +20,7 @@ public class VariantSpecificity extends NQCSpecificity {
     float lambda;
     double scaler; // to scale the current query's retrieval scores; THIS IDEA IS CEASED TO USE.
     boolean doNormalisation; //temporarily hard coded
+    AllRetrievedResults qvResults;
 
     public VariantSpecificity(QPPMethod baseModel,
                               IndexSearcher searcher, KNNRelModel knnRelModel,
@@ -31,6 +34,11 @@ public class VariantSpecificity extends NQCSpecificity {
         this.lambda = lambda;
         this.scaler = 1;
         this.doNormalisation = false;
+        this.qvResults = null;
+    }
+
+    public void setQvResults(AllRetrievedResults savedQvResults){
+        this.qvResults = savedQvResults;
     }
 
     public void setScaler(double scaler){
@@ -90,8 +98,13 @@ public class VariantSpecificity extends NQCSpecificity {
             // System.out.print(rq.getId());
             // System.out.print(" ");
             TopDocs topDocsRQ = searcher.search(rq.getQuery(), k);
-            RetrievedResults varInfo = new RetrievedResults(rq.getId(), topDocsRQ);
-            //Arrays.stream(varInfo.getRSVs(5)).forEach(System.out::println);
+
+            RetrievedResults varInfo;
+            if(qvResults == null) {
+                varInfo = new RetrievedResults(rq.getId(), topDocsRQ);
+            } else {
+                varInfo = qvResults.getRetrievedResultsForQueryId(rq.getId());
+            }
 
             variantSpecScore = baseModel.computeSpecificity(rq, varInfo, topDocs, k);
 

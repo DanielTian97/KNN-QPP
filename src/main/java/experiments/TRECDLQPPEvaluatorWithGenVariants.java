@@ -15,6 +15,7 @@ import retrieval.Constants;
 import retrieval.KNNRelModel;
 import retrieval.MsMarcoQuery;
 import retrieval.OneStepRetriever;
+import qrels.AllRetrievedResults; // added 0421
 
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,8 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             Evaluator evaluator,
             List<MsMarcoQuery> queries,
             Map<String, TopDocs> topDocsMap,
-            float lambda, int numVariants, Metric targetMetric) {
+            float lambda, int numVariants, Metric targetMetric,
+            AllRetrievedResults qvResults) {
 
         double kendals = 0;
 
@@ -79,6 +81,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
                     lambda
             ); // I changed it to the subclass, is it ok?
             // qppMethod.setScaler(scaler);
+            qppMethod.setQvResults(qvResults); // for M=M' test
         } 
 
         int numQueries = queries.size();
@@ -120,7 +123,8 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             String variantsQidFile,
             String scoreFile,
             boolean extendToRelQueryFromDocs,
-            boolean useRBO
+            boolean useRBO,
+            AllRetrievedResults qvResults // for testing same retriever
     )
             throws Exception {
         IndexSearcher searcher = retriever.getSearcher();
@@ -141,7 +145,8 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             for (float l = 0; l <= 1.0; l += Constants.QPP_COREL_LAMBDA_STEPS) {
                 double kendals = runExperiment(baseModelName,
                         searcher, knnRelModel, evaluatorTrain,
-                        trainQueries, topDocsMap, l, numVariants, targetMetric);
+                        trainQueries, topDocsMap, l, numVariants, targetMetric,
+                        qvResults);
 
                 System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f",
                         trainQueryFile, l, numVariants, kendals));
@@ -169,7 +174,8 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
         double kendals_Test = runExperiment(baseModelName,
                 searcher, knnRelModelTest,
-                evaluatorTest, testQueries, topDocsMapTest, p.l, p.numVariants, targetMetric);
+                evaluatorTest, testQueries, topDocsMapTest, p.l, p.numVariants, targetMetric,
+                qvResults);
 
         System.out.println(String.format(
                 "Kendal's on %s with lambda=%.1f, M=%d: %.4f",
@@ -255,7 +261,8 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             int numVariants,
             float l,
             String variantFile,
-            boolean useRBO
+            boolean useRBO,
+            AllRetrievedResults qvResults
     )
             throws Exception {
 
@@ -267,7 +274,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
         double kendals = runExperiment(baseModelName, retriever.getSearcher(),
                 knnRelModel, evaluatorTest, testQueries, topDocsMapTest,
-                l, numVariants, targetMetric);
+                l, numVariants, targetMetric, qvResults);
         System.out.println(String.format("Target Metric: %s, tau = %.4f", targetMetric.toString(), kendals));
     }
 
@@ -311,7 +318,31 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         String variantFile = "";
         String variantQidFile = "";
         String scoreFile = "";
-        switch(args[4]){
+        String rqResFile = "";
+
+        String retrieverName = "bm25";
+
+        if (args[0].indexOf("mt5") != -1) {
+            // mt5
+            retrieverName = "mt5";
+        } else if (args[0].indexOf("BM25+BERT") != -1){
+            // bert
+            retrieverName = "bert";
+        }
+
+        if(Constants.SAME_RETRIEVER) { // change the rqResFile according to retriever+qv_type
+            if(retrieverName.equals("mt5")){
+                rqResFile = String.format("%s/QV_bm25_%s_%s.res", Constants.QV_RESFILE_BASE_PATH, retrieverName, args[4]);
+            }
+        }
+
+        //here ..... 0421
+        AllRetrievedResults qvResults = null;
+        if( ! rqResFile.equals("")) {
+            qvResults = new AllRetrievedResults(rqResFile); //rqResFile should be a constant
+        }
+
+        switch(args[4]){ 
             case "rlm":
                 variantFile = Constants.QPP_JM_VARIANTS_FILE_RLM;
                 break;
@@ -338,14 +369,21 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             System.exit(0);
             */
 
+            // read QV res file if the filename is not == ""
+
+
             double kendalsOnTest = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL19], QRELS_FILES[DL19],
                     QUERY_FILES[DL20], QRELS_FILES[DL20],
-                    args[0], args[1], Constants.QPP_COREL_MAX_VARIANTS, variantFile, variantQidFile, scoreFile, extendOne, useRBO);
+                    args[0], args[1], Constants.QPP_COREL_MAX_VARIANTS, 
+                    variantFile, variantQidFile, scoreFile, 
+                    extendOne, useRBO, qvResults);
             double kendalsOnTrain = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL20], QRELS_FILES[DL20],
                     QUERY_FILES[DL19], QRELS_FILES[DL19],
-                    args[1], args[0], Constants.QPP_COREL_MAX_VARIANTS, variantFile, variantQidFile, scoreFile, extendOne, useRBO);
+                    args[1], args[0], Constants.QPP_COREL_MAX_VARIANTS, 
+                    variantFile, variantQidFile, scoreFile, 
+                    extendOne, useRBO, qvResults);
 
             double kendals = 0.5*(kendalsOnTrain + kendalsOnTest);
             System.out.println(String.format("Target Metric: %s, tau = %.4f", targetMetric.toString(), kendals));
