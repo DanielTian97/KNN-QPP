@@ -107,7 +107,6 @@ public class VariantSpecificity extends NQCSpecificity {
                 if(varInfo == null) {
                     System.out.println("NULL!!");
                 }
-                varInfo = new RetrievedResults(rq.getId(), topDocsRQ);
             }
 
             variantSpecScore = baseModel.computeSpecificity(rq, varInfo, topDocs, k);
