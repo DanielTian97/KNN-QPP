@@ -359,10 +359,10 @@ public class KNNRelModel extends SupervisedRLM {
             }
 
             knnQueryMap.put(qid, knnQueries);
-            // System.out.printf("*Q=%s\n", q);
-            // for (MsMarcoQuery rq : knnQueryMap.get(qid)) {
-            //     System.out.println(rq);
-            // }
+            System.out.printf("*Q=%s\n", q);
+            for (MsMarcoQuery rq : knnQueryMap.get(qid)) {
+                System.out.println(rq);
+            }
 
             // //for analysis the weight
             // for(MsMarcoQuery aq : knnQueries){
@@ -423,11 +423,10 @@ public class KNNRelModel extends SupervisedRLM {
             //     System.out.printf("%f ", aq.getRefSim());
             // }
             // System.out.print('\n');
-            
-            // System.out.printf("*Q=%s\n", q);
-            // for (MsMarcoQuery rq : knnQueryMap.get(qid)) {
-            //     System.out.println(rq);
-            // }
+            System.out.printf("*Q=%s\n", q);
+            for (MsMarcoQuery rq : knnQueryMap.get(qid)) {
+                System.out.println(rq);
+            }
 
         }
     }

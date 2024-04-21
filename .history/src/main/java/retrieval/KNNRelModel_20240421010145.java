@@ -62,27 +62,27 @@ public class KNNRelModel extends SupervisedRLM {
     }
 
     public KNNRelModel(String qrelFile, String queryFile) throws Exception {
-        this(qrelFile, queryFile, false);
+        this(qrelFile, queryFile, false, false);
     }
 
-    public KNNRelModel(String qrelFile, String queryFile, boolean useRBO) throws Exception {
+    public KNNRelModel(String qrelFile, String queryFile, boolean useRBO, boolean extendQV) throws Exception {
         super(qrelFile, queryFile);
         constructQueriesAndQrels(queryFile);
-        constructKNNMap(useRBO);
+        constructKNNMap(useRBO, extendQV);
     }
 
-    public KNNRelModel(String qrelFile, String queryFile, String variantsFile) throws Exception {
-        super(qrelFile, queryFile);
-        constructQueriesAndQrels(queryFile);
-
-        constructKNNMap(variantsFile);
-    }
-
-    public KNNRelModel(String qrelFile, String queryFile, String variantsFile, String scoreFile) throws Exception {
+    public KNNRelModel(String qrelFile, String queryFile, String variantsFile, boolean useRBO) throws Exception {
         super(qrelFile, queryFile);
         constructQueriesAndQrels(queryFile);
 
-        constructKNNMap(variantsFile, scoreFile);
+        constructKNNMap(variantsFile, useRBO);
+    }
+
+    public KNNRelModel(String qrelFile, String queryFile, String variantsFile, String variantsQidFile, String scoreFile, boolean extendToRelQueryFromDocs, boolean useRBO) throws Exception {
+        super(qrelFile, queryFile);
+        constructQueriesAndQrels(queryFile);
+
+        constructKNNMap(variantsFile, variantsQidFile, scoreFile, extendToRelQueryFromDocs, useRBO);
     }
 
     public List<MsMarcoQuery> getQueries() { return queryMap.values().stream().collect(Collectors.toList()); }
@@ -106,30 +106,150 @@ public class KNNRelModel extends SupervisedRLM {
         return queryMap;
     }
 
-    void constructKNNMap(boolean useRBO) throws Exception {
+    void constructKNNMap(boolean useRBO, boolean extendQV) throws Exception {
         knnQueryMap = new HashMap<>();
         List<MsMarcoQuery> queries = queryMap.values().stream().collect(Collectors.toList());
 
         for (MsMarcoQuery q : queries) {
             List<MsMarcoQuery> knnQueries = knnQueryMap.get(q.getId());
             if (knnQueries == null) {
-                knnQueries = q.retrieveSimilarQueries(
-                        getQueryIndexSearcher(),
-                        Constants.QPP_COREL_MAX_VARIANTS)
-                ;
+                // knnQueries = q.retrieveSimilarQueries(
+                //         getQueryIndexSearcher(),
+                //         Constants.QPP_COREL_MAX_VARIANTS)
+                // ;
 
-                // Replace BM25 similarities with RBO similarities. Just to be consistent with gen variants...
-                if (useRBO) {
-                    for (MsMarcoQuery knnQuery : knnQueries)
+                // // Replace BM25 similarities with RBO similarities. Just to be consistent with gen variants...
+                // if (useRBO) {
+                //     for (MsMarcoQuery knnQuery : knnQueries)
+                //         knnQuery.setRefSim(computeRBO(q, knnQuery));
+
+                //     knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+                //     //knnQueries.stream().forEach(System.out::println);
+                // }
+                knnQueries = retrieveBM25KnnQueries(q, useRBO);
+                
+
+                if(extendQV) {
+                    List<MsMarcoQuery> qVExtensions = extendRetrievedKnnQueries(knnQueries);
+                    knnQueries.addAll(qVExtensions);
+
+                    // rerank
+                    for (MsMarcoQuery knnQuery : knnQueries) {
                         knnQuery.setRefSim(computeRBO(q, knnQuery));
-
-                    knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
-                    //knnQueries.stream().forEach(System.out::println);
+                    }
+                    // sort after reranking
+                    knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).limit(Constants.QPP_COREL_MAX_VARIANTS).collect(Collectors.toList());
                 }
 
                 knnQueryMap.put(q.getId(), knnQueries);
+                
+                // System.out.printf("*Q=%s\n", q);
+                // for (MsMarcoQuery rq : knnQueryMap.get(q.getId())) {
+                //     System.out.println(rq);
+                // }
             }
         }
+    }
+
+    // void constructKNNMapFlexibly(boolean useRetrievedQV, boolean extendRetrievedQV, boolean useGeneratedQV) throws Exception {
+        
+    // }
+
+    List<MsMarcoQuery> retrieveBM25KnnQueries (MsMarcoQuery q, boolean useRBO) throws Exception {
+        List<MsMarcoQuery> knnQueries = q.retrieveSimilarQueries(this.rels, getQueryIndexSearcher(), Constants.QPP_COREL_MAX_VARIANTS);
+
+        // Replace BM25 similarities with RBO similarities. Just to be consistent with gen variants...
+        if (useRBO) {
+            for (MsMarcoQuery knnQuery : knnQueries) {
+                knnQuery.setRefSim(computeRBO(q, knnQuery));
+            }
+
+            knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        }
+
+        // //for analysis the weight
+        // for(MsMarcoQuery aq : knnQueries){
+        //     System.out.printf("%f ", aq.getRefSim());
+        // }
+        // System.out.print('\n');
+
+        return knnQueries;
+    }
+
+    List<MsMarcoQuery> extendRetrievedKnnQueries (List<MsMarcoQuery> RetrievedKnnQueries) throws Exception {
+        List<MsMarcoQuery> qVExtensions = new ArrayList<MsMarcoQuery>();
+
+        // System.out.print("rqs: ");
+        // for (MsMarcoQuery rq : RetrievedKnnQueries) {
+        //     System.out.print(rq.getId());
+        //     System.out.print(" ");
+        // }
+        // System.out.print("\n");
+        
+        for (MsMarcoQuery rq : RetrievedKnnQueries) {
+            PerQueryRelDocs relDocs = rq.getRelDocSet();
+            if (relDocs==null || relDocs.getRelDocs().isEmpty())
+                continue;
+            String docName = relDocs.getRelDocs().iterator().next();
+            String docText = reader.document(this.getDocOffset(docName)).get(Constants.CONTENT_FIELD);
+            MsMarcoQuery docQuery = new MsMarcoQuery(docName, docText);
+
+            List<MsMarcoQuery> foundQueriesForQ;
+            if(Constants.ABLATION_EXP_FOR_EXTENDING){
+                foundQueriesForQ = rq.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.CLARITY_CAL_RANGE);
+            } else {
+                foundQueriesForQ = docQuery.retrieveSimilarQueries(getQueryIndexSearcher(), Constants.CLARITY_CAL_RANGE);
+            }
+            
+            // System.out.print("\nfor rq: ");
+            // System.out.print(rq.getId());
+            // System.out.print(" retrieved: ");
+            // for(MsMarcoQuery rrq : foundQueriesForQ){
+            //     System.out.print(rrq.getId());
+            //     System.out.print(" ");
+            // }
+            // System.out.print("\n");
+
+            for(MsMarcoQuery rrq : foundQueriesForQ){
+                boolean kept = true;
+
+                // System.out.println("\nCheck QVs:");
+                for(MsMarcoQuery rqC : RetrievedKnnQueries){
+                    // System.out.printf("%s %s %b", rqC.getId(), rrq.getId(), rqC.getId() == rrq.getId());
+                    if(rrq.getId().equals(rqC.getId())){ //rqC means rq for comparison
+                        // foundQueriesForQ.remove(rrq);
+                        kept = false;
+                        break;
+                    }
+                }
+
+                // System.out.println("\nCheck QVEs:");
+                if(kept) {
+                    for (MsMarcoQuery qVE : qVExtensions) {
+                        // System.out.printf("%s %s %b", qVE.getId(), rrq.getId(), qVE.getId() == rrq.getId());
+                        if(qVE.getId().equals(rrq.getId())){
+                            kept = false;
+                            break;
+                        }
+                    }
+                    if(kept){
+                        //System.out.println(rq.getId());
+                        //System.out.println(rq.getQuery());
+                        qVExtensions.add(rrq);
+                    }
+                }
+            }
+
+        }
+        
+        // System.out.print("\ne qvs: ");
+        // for (MsMarcoQuery eqv : qVExtensions) {
+        //     System.out.print(eqv.getId());
+        //     System.out.print(" ");
+        // }
+        // System.out.println("\n");
+
+        return qVExtensions;
     }
 
     float computeRBO(MsMarcoQuery q, MsMarcoQuery refQ) {
@@ -143,47 +263,117 @@ public class KNNRelModel extends SupervisedRLM {
         return topA==null||topB==null? 0 : (float)OverlapStats.computeRBO(topA, topB);
     }
 
-    void constructKNNMap(String variantsFile, String scoreFile) throws Exception {
+    void constructKNNMap(String variantsFile, String variantsQidFile, String scoreFile, boolean extendQV, boolean useRBO) throws Exception {
         knnQueryMap = new HashMap<>();
 
         List<String> textLines = FileUtils.readLines(new File(variantsFile), StandardCharsets.UTF_8);
+        List<String> qidLines = FileUtils.readLines(new File(variantsQidFile), StandardCharsets.UTF_8);
         List<String> scoreLines = FileUtils.readLines(new File(scoreFile), StandardCharsets.UTF_8);
 
         Iterator<String> textLineIterator = textLines.iterator();
+        Iterator<String> qidLineIterator = qidLines.iterator();
         Iterator<String> scoreLineIterator = scoreLines.iterator();
 
         while(textLineIterator.hasNext()){
             String textLine = textLineIterator.next();
+            String qidLine = qidLineIterator.next();
             String scoreLine = scoreLineIterator.next();
 
             String[] tokens = textLine.split("\\t");
+            String[] qids = qidLine.split("\\t");
             String[] scores = scoreLine.split("\\t");
 
             String qid = tokens[0];
-
-            for (int i=2; i < tokens.length; i++) {
-                List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
+            MsMarcoQuery q = queryMap.get(qid);
+            if(q == null){
+                continue;
+            }
+            
+            List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
+            // for (int i=2; i < tokens.length; i++) {
+            for (int i=2; i < 2+Constants.QPP_COREL_MAX_VARIANTS; i++) {
+                // List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
                 if (knnQueries==null) {
                     knnQueries = new ArrayList<>();
                     knnQueryMap.put(qid, knnQueries);
                 }
-                MsMarcoQuery rq = new MsMarcoQuery(qid + "_v_" + i, tokens[i], Float.parseFloat(scores[i]));
+                MsMarcoQuery rq = new MsMarcoQuery(qids[i], tokens[i], Float.parseFloat(scores[i]));
                 if(rq.query==null){
                     continue;
                 }
+                rq.relDocs = rels.getRelInfo(rq.qid);
+
+                // // aborted!!!!!
+                // if (extendToRelQueryFromDocs){
+                //     // System.out.println(knnQueries.size());
+                //     // queries which are in fact docs
+                //     knnQueries = getRelDocsSimQuery(rq, knnQueries);
+                //     // System.out.println(knnQueries.size());
+                // }
 
                 MsMarcoQuery testQuery = queryMap.get(qid);
                 if (testQuery==null)
                     continue;  // the variants file is a union of dl'19 and 20... hence safe to discard missing ones
-                rq.setRefSim(1.0f); // uniform
+                // rq.setRefSim(1.0f); // uniform
 
                 knnQueries.add(rq);
+
             }
+
+            if (useRBO) {
+                for (MsMarcoQuery knnQuery : knnQueries)
+                    knnQuery.setRefSim(computeRBO(q, knnQuery));
+                
+                    knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+                // knnQueries = knnQueries.stream().limit(Constants.QPP_COREL_MAX_VARIANTS).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+                //knnQueries.stream().forEach(System.out::println);
+            }
+
+            // I realise it is not needed to create a special method for it
+            if(extendQV) {
+
+                // System.out.print("Before extension: ");
+                // for (MsMarcoQuery knnQuery : knnQueries) {
+                //     System.out.print(knnQuery.getId());
+                //     System.out.print(" ");
+                // }
+                // System.out.println("\n");
+
+                List<MsMarcoQuery> qVExtensions = extendRetrievedKnnQueries(knnQueries);
+                knnQueries.addAll(qVExtensions);
+
+                // rerank
+                for (MsMarcoQuery knnQuery : knnQueries) {
+                    knnQuery.setRefSim(computeRBO(q, knnQuery));
+                }
+                // sort after reranking
+                knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).limit(Constants.QPP_COREL_MAX_VARIANTS).collect(Collectors.toList());
+
+                // System.out.print("\nAfter extension: ");
+                // for (MsMarcoQuery knnQuery : knnQueries) {
+                //     System.out.print(knnQuery.getId());
+                //     System.out.print(" ");
+                // }
+                // System.out.println("\n");
+                
+            }
+
+            knnQueryMap.put(qid, knnQueries);
+            // System.out.printf("*Q=%s\n", q);
+            // for (MsMarcoQuery rq : knnQueryMap.get(qid)) {
+            //     System.out.println(rq);
+            // }
+
+            // //for analysis the weight
+            // for(MsMarcoQuery aq : knnQueries){
+            //     System.out.printf("%f ", aq.getRefSim());
+            // }
+            // System.out.print('\n');
         }     
     }
 
 
-    void constructKNNMap(String variantsFile) throws Exception {
+    void constructKNNMap(String variantsFile, boolean useRBO) throws Exception {
         knnQueryMap = new HashMap<>();
 
         List<String> lines = FileUtils.readLines(new File(variantsFile), StandardCharsets.UTF_8);
@@ -191,10 +381,14 @@ public class KNNRelModel extends SupervisedRLM {
         for (String line: lines) {
             String[] tokens = line.split("\\t");
             String qid = tokens[0];
+            MsMarcoQuery q = queryMap.get(qid);
+            if(q == null){
+                continue;
+            }
 
-    
+            List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
             for (int i=2; i < tokens.length; i++) {
-                List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
+                // List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
                 if (knnQueries==null) {
                     knnQueries = new ArrayList<>();
                     knnQueryMap.put(qid, knnQueries);
@@ -212,8 +406,29 @@ public class KNNRelModel extends SupervisedRLM {
                 knnQueries.add(rq);
             }
 
+            if (useRBO) {
+                for (MsMarcoQuery knnQuery : knnQueries)
+                    knnQuery.setRefSim(computeRBO(q, knnQuery));
+
+                knnQueries = knnQueries.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+                //knnQueries.stream().forEach(System.out::println);
+            }
+
+            knnQueryMap.put(qid, knnQueries);
             //List<MsMarcoQuery> knnQueries = knnQueryMap.get(qid);
             //knnQueries.stream().forEach(System.out::println);
+
+            // //for analysis the weight
+            // for(MsMarcoQuery aq : knnQueries){
+            //     System.out.printf("%f ", aq.getRefSim());
+            // }
+            // System.out.print('\n');
+            
+            // System.out.printf("*Q=%s\n", q);
+            // for (MsMarcoQuery rq : knnQueryMap.get(qid)) {
+            //     System.out.println(rq);
+            // }
+
         }
     }
 
@@ -233,6 +448,19 @@ public class KNNRelModel extends SupervisedRLM {
             }
         }
         return rank+1;
+    }
+
+    private List<MsMarcoQuery> getRelDocsSimQuery(MsMarcoQuery q, List<MsMarcoQuery> knnQueries) throws Exception {
+        Set<String> relDocs = q.getRelDocSet().getRelDocs();
+        for (String docName : relDocs) {
+            int docId = getDocOffset(docName);
+            String docText = searcher.getIndexReader().document(docId).get(Constants.CONTENT_FIELD);
+            // System.out.println(docText);
+            // append this to the variants file
+            MsMarcoQuery docQuery = new MsMarcoQuery(docName, docText, q.getRefSim());
+            knnQueries.add(docQuery);
+        }
+        return knnQueries;
     }
 
     List<MsMarcoQuery> genFewShotExamples(MsMarcoQuery query, int k) {
