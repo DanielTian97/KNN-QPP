@@ -105,7 +105,7 @@ public class VariantSpecificity extends NQCSpecificity {
             } else {
                 varInfo = qvResults.getRetrievedResultsForQueryId(rq.getId());
                 if(varInfo == null) {
-                    System.out.printf("%s NO RECORD!!\n", rq.getId());
+                    System.out.printf("%s NULL!!\n", rq.getId());
                 }
                 varInfo = new RetrievedResults(rq.getId(), topDocsRQ);
             }
