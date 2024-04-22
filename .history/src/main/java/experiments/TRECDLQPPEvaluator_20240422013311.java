@@ -256,8 +256,7 @@ public class TRECDLQPPEvaluator {
             int numVariants,
             float l,
             boolean useRBO,
-            boolean extendQV,
-            AllRetrievedResults qvResults
+            boolean extendQV
     )
     throws Exception {
 

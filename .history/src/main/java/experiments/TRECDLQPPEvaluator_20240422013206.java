@@ -137,9 +137,7 @@ public class TRECDLQPPEvaluator {
             for (float l = 0; l <= 1.0; l += Constants.QPP_COREL_LAMBDA_STEPS) {
                 TauAndSARE tauAndSARE = runExperiment(baseModelName,
                         searcher, knnRelModel, evaluatorTrain,
-                        trainQueries, topDocsMap, 
-                        l, numVariants, targetMetric,
-                        qvResults);
+                        trainQueries, topDocsMap, l, numVariants, targetMetric);
 
                 System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f",
                         trainQueryFile, l, numVariants, tauAndSARE.tau, tauAndSARE.sare));
@@ -163,9 +161,7 @@ public class TRECDLQPPEvaluator {
         Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
         TauAndSARE tauAndSARE_Test = runExperiment(baseModelName,
                 searcher, knnRelModelTest,
-                evaluatorTest, testQueries, topDocsMapTest, 
-                p.l, p.numVariants, targetMetric,
-                qvResults);
+                evaluatorTest, testQueries, topDocsMapTest, p.l, p.numVariants, targetMetric);
 
         System.out.println(String.format(
                 "Kendal's on %s with lambda=%.1f, M=%d: %.4f %.4f",
@@ -256,8 +252,7 @@ public class TRECDLQPPEvaluator {
             int numVariants,
             float l,
             boolean useRBO,
-            boolean extendQV,
-            AllRetrievedResults qvResults
+            boolean extendQV
     )
     throws Exception {
 
@@ -271,7 +266,7 @@ public class TRECDLQPPEvaluator {
         Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
         TauAndSARE tauAndSARE = runExperiment(baseModelName, retriever.getSearcher(),
                                         knnRelModel, evaluatorTest, testQueries, topDocsMapTest,
-                                        l, numVariants, targetMetric, qvResults);
+                                        l, numVariants, targetMetric);
         System.out.println(String.format("Target Metric: %s, tau = %.4f sARE = %.4f", targetMetric.toString(), tauAndSARE.tau, tauAndSARE.sare));
     }
 

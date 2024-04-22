@@ -256,8 +256,7 @@ public class TRECDLQPPEvaluator {
             int numVariants,
             float l,
             boolean useRBO,
-            boolean extendQV,
-            AllRetrievedResults qvResults
+            boolean extendQV
     )
     throws Exception {
 
@@ -271,7 +270,7 @@ public class TRECDLQPPEvaluator {
         Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
         TauAndSARE tauAndSARE = runExperiment(baseModelName, retriever.getSearcher(),
                                         knnRelModel, evaluatorTest, testQueries, topDocsMapTest,
-                                        l, numVariants, targetMetric, qvResults);
+                                        l, numVariants, targetMetric);
         System.out.println(String.format("Target Metric: %s, tau = %.4f sARE = %.4f", targetMetric.toString(), tauAndSARE.tau, tauAndSARE.sare));
     }
 
