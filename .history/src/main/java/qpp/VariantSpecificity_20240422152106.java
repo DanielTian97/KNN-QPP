@@ -106,8 +106,8 @@ public class VariantSpecificity extends NQCSpecificity {
                 varInfo = qvResults.getRetrievedResultsForQueryId(rq.getId());
                 if(varInfo == null) {
                     System.out.printf("%s NO RECORD!!\n", rq.getId());
-                    continue;
                 }
+                continue;
             }
 
             variantSpecScore = baseModel.computeSpecificity(rq, varInfo, topDocs, k);
