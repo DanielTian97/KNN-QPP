@@ -66,7 +66,7 @@ public interface Constants {
     String COVID_COLL = "data-BEIR/collection.tsv"; 
     String COVID_INDEX =  "beir-index/COVID/";
     String FEVER_COLL = "data-BEIR/collection.tsv";
-    String FEVER_INDEX = "beir-index/FEVER/" 
+    String FEVER_INDEX = "beir-index/FEVER/";
     String WEBIS_COLL = "data-BEIR/collection.tsv";
     String WEBIS_INDEX = "beir-index/WEBIS/";
 }
