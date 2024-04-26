@@ -58,10 +58,10 @@ public class MsMarcoIndexer {
         while ((line = br.readLine())!= null) {
             line = line.trim();
             String[] parts = line.split("\t");
-            if (parts.length >= 1) {
-                if(parts.length == 1) {
-                    System.out.println(parts[0]);
-                }
+            if (parts.length > 1) { // changed from >=1 ........ 26/04/'24 dandy
+                // if(parts.length == 1) {
+                //     System.out.println(parts[0]);
+                // }
                 String docId = parts[0];
                 // normalize the number tokens (the values themselves are not important)
                 String content = normalizeNumbers(parts[1]);
