@@ -59,6 +59,9 @@ public class MsMarcoIndexer {
             line = line.trim();
             String[] parts = line.split("\t");
             if (parts.length >= 1) {
+                if(parts.length == 1) {
+                    System.out.println(parts[0]);
+                }
                 String docId = parts[0];
                 // normalize the number tokens (the values themselves are not important)
                 String content = normalizeNumbers(parts[1]);
