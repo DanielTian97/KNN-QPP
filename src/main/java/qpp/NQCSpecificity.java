@@ -43,7 +43,8 @@ public class NQCSpecificity extends BaseIDFSpecificity {
             e.printStackTrace();
         }
         // return nqc * maxIDF; // high variance, high avgIDF -- more specificity
-        return nqc * avgIDF;
+        // return nqc * avgIDF;
+        return nqc;
     }
 
     public double computeNQC(Query q, RetrievedResults topDocs, int k) {
