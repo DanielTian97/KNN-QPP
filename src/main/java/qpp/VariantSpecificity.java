@@ -33,7 +33,7 @@ public class VariantSpecificity extends NQCSpecificity {
         this.numVariants = numVariants;
         this.lambda = lambda;
         this.scaler = 1;
-        this.doNormalisation = false;
+        this.doNormalisation = true; // changed to true temporarily - 0429
         this.qvResults = null;
     }
 
