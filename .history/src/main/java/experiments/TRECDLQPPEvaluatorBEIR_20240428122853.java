@@ -1,6 +1,8 @@
 package experiments;
 
 import correlation.SARE;
+
+import org.apache.commons.math3.analysis.function.Constant;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TopDocs;
@@ -28,7 +30,7 @@ class OptimalHyperParams {
     double kendals;
 }
 
-public class TRECDLQPPEvaluator {
+public class TRECDLQPPEvaluatorBEIR {
     static final int DL19 = 0;
     static final int DL20 = 1;
     static String[] QUERY_FILES = {"data/trecdl/pass_2019.queries", "data/trecdl/pass_2020.queries"};
@@ -51,26 +53,42 @@ public class TRECDLQPPEvaluator {
             Evaluator evaluator,
             List<MsMarcoQuery> queries,
             Map<String, TopDocs> topDocsMap,
-            float lambda, int numVariants, Metric targetMetric) {
+            float lambda, int numVariants, Metric targetMetric,
+            AllRetrievedResults qvResults) {
 
         QPPMethod baseModel = baseQPPModelName.equals("nqc")? new NQCSpecificity(searcher): new UEFSpecificity(new NQCSpecificity(searcher));
-        VariantSpecificity qppMethod = new VariantSpecificity(
-                baseModel,
-                searcher,
-                knnRelModel,
-                numVariants,
-                lambda
-        ); // I changed it to the subclass, is it ok?
+
+        boolean useClarity = Constants.USE_CLARITY; // hard coded temporarily
+        VariantSpecificity qppMethod;
+        if(useClarity){
+            qppMethod = new CoRelSpecificity(
+                    baseModel,
+                    searcher,
+                    knnRelModel,
+                    numVariants,
+                    lambda
+            );             
+        } else {
+            qppMethod = new VariantSpecificity(
+                    baseModel,
+                    searcher,
+                    knnRelModel,
+                    numVariants,
+                    lambda
+            ); // I changed it to the subclass, is it ok?
+            // qppMethod.setScaler(scaler);
+            qppMethod.setQvResults(qvResults); // for M=M' test
+        } 
 
         int numQueries = queries.size();
         double[] qppEstimates = new double[numQueries];
         double[] evaluatedMetricValues = new double[numQueries];
 
         int i = 0;
-        double scaler_base = -1;
 
         for (MsMarcoQuery query : queries) {
             RetrievedResults rr = evaluator.getRetrievedResultsForQueryId(query.getId());
+
             TopDocs topDocs = topDocsMap.get(query.getId());
 
             evaluatedMetricValues[i] = evaluator.compute(query.getId(), targetMetric);
@@ -99,11 +117,13 @@ public class TRECDLQPPEvaluator {
             String trainResFile,
             String testResFile,
             int maxNumVariants,
-            boolean useRBO
+            boolean useRBO,
+            boolean extendQV,
+            AllRetrievedResults qvResults // for testing same retriever
     )
     throws Exception {
         IndexSearcher searcher = retriever.getSearcher();
-        KNNRelModel knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, trainQueryFile, useRBO);
+        KNNRelModel knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, trainQueryFile, useRBO, extendQV);
         List<MsMarcoQuery> trainQueries = knnRelModel.getQueries();
 
         Evaluator evaluatorTrain = new Evaluator(trainQrelsFile, trainResFile); // load ret and rel
@@ -116,10 +136,12 @@ public class TRECDLQPPEvaluator {
         OptimalHyperParams p = new OptimalHyperParams();
 
         for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
-            for (float l = 0; l <= 1; l += Constants.QPP_COREL_LAMBDA_STEPS) {
+            for (float l = 0; l <= 1.0; l += Constants.QPP_COREL_LAMBDA_STEPS) {
                 TauAndSARE tauAndSARE = runExperiment(baseModelName,
                         searcher, knnRelModel, evaluatorTrain,
-                        trainQueries, topDocsMap, l, numVariants, targetMetric);
+                        trainQueries, topDocsMap, 
+                        l, numVariants, targetMetric,
+                        qvResults);
 
                 System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f",
                         trainQueryFile, l, numVariants, tauAndSARE.tau, tauAndSARE.sare));
@@ -132,7 +154,7 @@ public class TRECDLQPPEvaluator {
         }
         System.out.println(String.format("The best settings: lambda=%.1f, nv=%d", p.l, p.numVariants));
         // apply this setting on the test set
-        KNNRelModel knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile, useRBO);
+        KNNRelModel knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile, useRBO, extendQV);
         List<MsMarcoQuery> testQueries = knnRelModelTest.getQueries(); // these queries are different from train queries
 
         Evaluator evaluatorTest = new Evaluator(testQrelsFile, testResFile); // load ret and rel
@@ -143,83 +165,13 @@ public class TRECDLQPPEvaluator {
         Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
         TauAndSARE tauAndSARE_Test = runExperiment(baseModelName,
                 searcher, knnRelModelTest,
-                evaluatorTest, testQueries, topDocsMapTest, p.l, p.numVariants, targetMetric);
+                evaluatorTest, testQueries, topDocsMapTest, 
+                p.l, p.numVariants, targetMetric,
+                qvResults);
 
         System.out.println(String.format(
                 "Kendal's on %s with lambda=%.1f, M=%d: %.4f %.4f",
                 testQueryFile, p.l, p.numVariants, tauAndSARE_Test.tau, tauAndSARE_Test.sare));
-
-        return tauAndSARE_Test;
-    }
-
-    static TauAndSARE trainAndTest(
-            String baseModelName,
-            OneStepRetriever retriever,
-            Metric targetMetric,
-            String trainQueryFile,
-            String trainQrelsFile,
-            String testQueryFile,
-            String testQrelsFile,
-            String trainResFile,
-            String testResFile,
-            int maxNumVariants,
-            int maxNumNeighbors,
-            boolean useRBO
-    )
-    throws Exception {
-
-        IndexSearcher searcher = retriever.getSearcher();
-        KNNRelModel knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, trainQueryFile, useRBO);
-
-        Evaluator evaluatorTrain = new Evaluator(trainQrelsFile, trainResFile); // load ret and rel
-        QPPEvaluator qppEvaluator = new QPPEvaluator(
-                trainQueryFile, trainQrelsFile,
-                new KendalCorrelation(), retriever.getSearcher(), Constants.QPP_NUM_TOPK);
-        List<MsMarcoQuery> trainQueries = qppEvaluator.constructQueries(trainQueryFile);
-
-        Map<String, TopDocs> topDocsMap = evaluatorTrain.getAllRetrievedResults().castToTopDocs();
-
-        OptimalHyperParams p = new OptimalHyperParams();
-
-        for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
-            for (int numNeighbors = 1; numNeighbors <= maxNumNeighbors; numNeighbors++) {
-                for (float l = 0; l <= 1; l += .2f) {
-                    for (float m = 0; m <= 1; m += .2f) {
-                        TauAndSARE tauAndSARE = runExperiment(baseModelName,
-                                searcher, knnRelModel, evaluatorTrain,
-                                trainQueries, topDocsMap, l, numVariants, targetMetric);
-
-                        System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f",
-                                trainQueryFile, l, numVariants, tauAndSARE.tau));
-                        if (tauAndSARE.tau > p.kendals) {
-                            p.l = l;
-                            p.m = m;
-                            p.numNeighbors = numNeighbors;
-                            p.numVariants = numVariants;
-                            p.kendals = tauAndSARE.tau; // keep track of max
-                        }
-                    }
-                }
-            }
-        }
-        System.out.println(String.format("The best settings: lambda=%.1f, mu=%.1f, nv=%d nn=%d", p.l, p.m, p.numVariants, p.numNeighbors));
-        // apply this setting on the test set
-        KNNRelModel knnRelModelTest = new KNNRelModel(Constants.QRELS_TRAIN, testQueryFile, useRBO);
-
-        Evaluator evaluatorTest = new Evaluator(testQrelsFile, testResFile); // load ret and rel
-        QPPEvaluator qppEvaluatorTest = new QPPEvaluator(
-                testQueryFile, testQrelsFile,
-                new KendalCorrelation(), retriever.getSearcher(), Constants.QPP_NUM_TOPK);
-        List<MsMarcoQuery> testQueries = qppEvaluatorTest.constructQueries(testQueryFile); // these queries are different from train queries
-
-        Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
-        TauAndSARE tauAndSARE_Test = runExperiment(baseModelName,
-                searcher, knnRelModelTest,
-                evaluatorTest, testQueries, topDocsMapTest, p.l, p.numVariants, targetMetric);
-
-        System.out.println(String.format(
-                "Kendal's on %s with lambda=%.1f, mu=%.1f, M=%d, N=%d: %.4f",
-                testQueryFile, p.l, p.m, p.numVariants, p.numNeighbors, tauAndSARE_Test.tau));
 
         return tauAndSARE_Test;
     }
@@ -232,11 +184,13 @@ public class TRECDLQPPEvaluator {
             Metric targetMetric,
             int numVariants,
             float l,
-            boolean useRBO
+            boolean useRBO,
+            boolean extendQV,
+            AllRetrievedResults qvResults
     )
     throws Exception {
 
-        KNNRelModel knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, queryFile, useRBO);
+        KNNRelModel knnRelModel = new KNNRelModel(Constants.QRELS_TRAIN, queryFile, useRBO, extendQV);
         Evaluator evaluatorTest = new Evaluator(qrelsFile, resFile); // load ret and rel
         QPPEvaluator qppEvaluatorTest = new QPPEvaluator(
                 queryFile, qrelsFile,
@@ -246,47 +200,81 @@ public class TRECDLQPPEvaluator {
         Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
         TauAndSARE tauAndSARE = runExperiment(baseModelName, retriever.getSearcher(),
                                         knnRelModel, evaluatorTest, testQueries, topDocsMapTest,
-                                        l, numVariants, targetMetric);
+                                        l, numVariants, targetMetric, qvResults);
         System.out.println(String.format("Target Metric: %s, tau = %.4f sARE = %.4f", targetMetric.toString(), tauAndSARE.tau, tauAndSARE.sare));
     }
 
     public static void main(String[] args) {
 
-        if (args.length < 5) {
-            System.out.println("Required arguments: <res file DL 19> <res file DL 20> <metric (ap/ndcg)> <uef/nqc>");
-            args = new String[5];
-            args[0] = "runs/splade.dl19.100.pp";
-            args[1] = "runs/splade.dl20.100.pp";
-            //args[0] = "runs/bm25.mt5.dl19.100";
-            //args[1] = "runs/bm25.mt5.dl20.100";
+        if (args.length < 6) {
+            System.out.println("Required arguments: <res file DL 19> <res file DL 20> <metric (ap/ndcg)> <uef/nqc> <corpus>");
+            args = new String[7];
+            args[0] = "runs/bm25.mt5.dl19.100";
+            args[1] = "runs/bm25.mt5.dl20.100";
             args[2] = "ap";
             args[3] = "nqc";
-            args[4] = "false";
+            args[4] = "true";
+            args[5] = "false";
+            args[6] = "covid";
         }
 
         Metric targetMetric = args[2].equals("ap")? Metric.AP : Metric.nDCG;
         boolean useRBO = Boolean.parseBoolean(args[4]);
+        boolean extendQV = Boolean.parseBoolean(args[5]);
+        
+        String rqResFile = "";
+        String retrieverName = "bm25";
+
+        if (args[0].indexOf("mt5") != -1) {
+            // mt5
+            retrieverName = "mt5";
+        } else if (args[0].indexOf("BM25+BERT") != -1){
+            // bert
+            retrieverName = "bert";
+        }
+
+        if(Constants.SAME_RETRIEVER) { // change the rqResFile according to retriever+qv_type
+            if(retrieverName.equals("mt5")){
+                rqResFile = String.format("%s/QV_bm25_%s_%s.res", Constants.QV_RESFILE_BASE_PATH, retrieverName, "bm25");
+            }
+        }
+
+        String corpusIndex = Constants.MSMARCO_INDEX;
+        switch (args[6]) {
+            case "covid":
+              corpusIndex = Constants.COVID_INDEX;
+              break;
+            case "fever":
+              corpusIndex = Constants.FEVER_INDEX;
+              break;
+            case "touche":
+              corpusIndex = Constants.WEBIS_INDEX;
+              break;
+        }
+
+        //here ..... 0421
+        AllRetrievedResults qvResults = null;
+        if( ! rqResFile.equals("")) {
+            qvResults = new AllRetrievedResults(rqResFile); //rqResFile should be a constant
+            // System.out.println(qvResults);
+        }
 
         try {
-            OneStepRetriever retriever = new OneStepRetriever(Constants.QUERY_FILE_TEST);
+            OneStepRetriever retriever = new OneStepRetriever(Constants.QUERY_FILE_TEST, corpusIndex);
             Settings.init(retriever.getSearcher());
-
-            /*
-            for (int i=0; i<=1; i++) {
-                runSingleExperiment(args[3], retriever, QUERY_FILES[i], QRELS_FILES[i], args[i], targetMetric, 3, 0.5f, useRBO);
-            }
-
-            System.exit(0);
-            */
 
             TauAndSARE kendalsOnTest = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL19], QRELS_FILES[DL19],
                     QUERY_FILES[DL20], QRELS_FILES[DL20],
-                    args[0], args[1], Constants.QPP_COREL_MAX_VARIANTS, useRBO);
+                    args[0], args[1], Constants.QPP_COREL_MAX_VARIANTS, 
+                    useRBO, extendQV,
+                    qvResults);
             TauAndSARE kendalsOnTrain = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL20], QRELS_FILES[DL20],
                     QUERY_FILES[DL19], QRELS_FILES[DL19],
-                    args[1], args[0], Constants.QPP_COREL_MAX_VARIANTS, useRBO);
+                    args[1], args[0], Constants.QPP_COREL_MAX_VARIANTS, 
+                    useRBO, extendQV,
+                    qvResults);
 
             double kendals = 0.5*(kendalsOnTrain.tau + kendalsOnTest.tau);
             double sare = 0.5*(kendalsOnTrain.sare + kendalsOnTest.sare);

@@ -307,7 +307,8 @@ public class TRECDLQPPEvaluator {
 
         if(Constants.SAME_RETRIEVER) { // change the rqResFile according to retriever+qv_type
             if(retrieverName.equals("mt5")){
-                rqResFile = String.format("%s/QV_bm25_%s_%s.res", Constants.QV_RESFILE_BASE_PATH, retrieverName, "bm25");
+                rqResFile = String.format("%s/QV_bm25_%s_%s.res", Constants.QV_RESFILE_BASE_PATH, retrieverName, "bm25"
+                );
             }
         }
 
