@@ -36,12 +36,13 @@ public class NQCSpecificity extends BaseIDFSpecificity {
 
         try {
             // dekhar jonyo je ei duto baaler modhye konta better baal!
-            //avgIDF = Arrays.stream(idfs(q)).average().getAsDouble();
+            avgIDF = Arrays.stream(idfs(q)).average().getAsDouble();
             maxIDF = Arrays.stream(idfs(q)).max().getAsDouble();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return nqc * maxIDF; // high variance, high avgIDF -- more specificity
+        // return nqc * maxIDF; // high variance, high avgIDF -- more specificity
+        return nqc * avgIDF;
     }
 
     public double computeNQC(Query q, RetrievedResults topDocs, int k) {
