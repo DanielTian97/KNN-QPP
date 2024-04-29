@@ -23,7 +23,10 @@ import java.util.List;
 import java.util.Map;
 
 public class TRECDLQPPEvaluatorBEIR {
-
+    // static final int TRAIN_MARCO= 0;
+    // static final int TEST_BEIR = 1;
+    // static String[] QUERY_FILES = {, "data/trecdl/pass_2020.queries"};
+    // static String[] QRELS_FILES = {"data/trecdl/pass_full.qrels", "data/trecdl/pass_2020.qrels"};
     static String QUERY_FILE_MSMARCO = "data/trecdl/pass_full.queries";
     static String QRELS_FILE_MSMARCO = "data/trecdl/pass_full.qrels";
 
