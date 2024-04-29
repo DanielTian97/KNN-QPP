@@ -267,37 +267,19 @@ public class TRECDLQPPEvaluatorBEIR {
 
             // Settings.init(retrieverTrain.getSearcher()); // it need be changed when do test/train, moved to trainAndTest
 
-            // TauAndSARE kendalsOnTest = trainAndTest(basePredictorName, targetMetric,
-            //         QUERY_FILE_MSMARCO, QRELS_FILE_MSMARCO,
-            //         QUERY_FILE_BEIR, QRELS_FILE_BEIR,
-            //         retrieverMSMARCO, retrieverBEIR,
-            //         resFileForMSMARCO, resFileForBEIR, Constants.QPP_COREL_MAX_VARIANTS, 
-            //         useRBO, extendQV,
-            //         qvResults);
-            
-            // TauAndSARE kendalsOnTrain = trainAndTest(basePredictorName, targetMetric,
-            //         QUERY_FILE_BEIR, QRELS_FILE_BEIR,
-            //         QUERY_FILE_MSMARCO, QRELS_FILE_MSMARCO,
-            //         retrieverBEIR, retrieverMSMARCO,
-            //         resFileForBEIR, resFileForMSMARCO, Constants.QPP_COREL_MAX_VARIANTS, 
-            //         useRBO, extendQV,
-            //         qvResults);
-
-            // for BEIR
-            trainAndTest(basePredictorName, targetMetric,
-                    QUERY_FILE_BEIR, QRELS_FILE_BEIR,
-                    QUERY_FILE_MSMARCO, QRELS_FILE_MSMARCO,
-                    retrieverBEIR, retrieverMSMARCO,
-                    resFileForBEIR, resFileForMSMARCO, Constants.QPP_COREL_MAX_VARIANTS, 
-                    useRBO, extendQV,
-                    qvResults);
-
-            // for MSMarco
-            trainAndTest(basePredictorName, targetMetric,
+            TauAndSARE kendalsOnTest = trainAndTest(basePredictorName, targetMetric,
                     QUERY_FILE_MSMARCO, QRELS_FILE_MSMARCO,
                     QUERY_FILE_BEIR, QRELS_FILE_BEIR,
                     retrieverMSMARCO, retrieverBEIR,
                     resFileForMSMARCO, resFileForBEIR, Constants.QPP_COREL_MAX_VARIANTS, 
+                    useRBO, extendQV,
+                    qvResults);
+            
+            TauAndSARE kendalsOnTrain = trainAndTest(basePredictorName, targetMetric,
+                    QUERY_FILE_BEIR, QRELS_FILE_BEIR,
+                    QUERY_FILE_MSMARCO, QRELS_FILE_MSMARCO,
+                    retrieverBEIR, retrieverMSMARCO,
+                    resFileForBEIR, resFileForMSMARCO, Constants.QPP_COREL_MAX_VARIANTS, 
                     useRBO, extendQV,
                     qvResults);
 
@@ -311,9 +293,9 @@ public class TRECDLQPPEvaluatorBEIR {
             // double kendals = kendalsOnTest.tau;
             // double sare = kendalsOnTest.sare;
 
-            // double kendals = 0.5*(kendalsOnTrain.tau + kendalsOnTest.tau);
-            // double sare = 0.5*(kendalsOnTrain.sare + kendalsOnTest.sare);
-            // System.out.println(String.format("Target Metric: %s, tau = %.4f, sare = %.4f", targetMetric.toString(), kendals, sare));
+            double kendals = 0.5*(kendalsOnTrain.tau + kendalsOnTest.tau);
+            double sare = 0.5*(kendalsOnTrain.sare + kendalsOnTest.sare);
+            System.out.println(String.format("Target Metric: %s, tau = %.4f, sare = %.4f", targetMetric.toString(), kendals, sare));
         }
         catch (Exception ex) {
             ex.printStackTrace();

@@ -283,21 +283,21 @@ public class TRECDLQPPEvaluatorBEIR {
             //         useRBO, extendQV,
             //         qvResults);
 
-            // for BEIR
-            trainAndTest(basePredictorName, targetMetric,
-                    QUERY_FILE_BEIR, QRELS_FILE_BEIR,
-                    QUERY_FILE_MSMARCO, QRELS_FILE_MSMARCO,
-                    retrieverBEIR, retrieverMSMARCO,
-                    resFileForBEIR, resFileForMSMARCO, Constants.QPP_COREL_MAX_VARIANTS, 
-                    useRBO, extendQV,
-                    qvResults);
-
             // for MSMarco
             trainAndTest(basePredictorName, targetMetric,
                     QUERY_FILE_MSMARCO, QRELS_FILE_MSMARCO,
                     QUERY_FILE_BEIR, QRELS_FILE_BEIR,
                     retrieverMSMARCO, retrieverBEIR,
                     resFileForMSMARCO, resFileForBEIR, Constants.QPP_COREL_MAX_VARIANTS, 
+                    useRBO, extendQV,
+                    qvResults);
+            
+            // for BEIR
+            trainAndTest(basePredictorName, targetMetric,
+                    QUERY_FILE_BEIR, QRELS_FILE_BEIR,
+                    QUERY_FILE_MSMARCO, QRELS_FILE_MSMARCO,
+                    retrieverBEIR, retrieverMSMARCO,
+                    resFileForBEIR, resFileForMSMARCO, Constants.QPP_COREL_MAX_VARIANTS, 
                     useRBO, extendQV,
                     qvResults);
 
