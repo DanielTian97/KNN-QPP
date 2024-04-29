@@ -204,11 +204,11 @@ public class TRECDLQPPEvaluatorBEIR {
 
     public static void main(String[] args) {
 
-        if (args.length < 4) {
+        if (args.length < 5) {
             System.out.println("Required arguments: <res file for training (MSMarco)> <res file for testing (BEIR)> <metric (ap/ndcg)> <uef/nqc> <corpus>");
-            args = new String[5];
-            args[0] = "runs/train.covid.mt5.res"; // from msmarco queries
-            args[1] = "runs/test.covid.mt5.res"; // from beir queries
+            args = new String[6];
+            args[0] = "runs/trecdl_mt5_results.res"; // from msmarco queries
+            args[1] = "runs/covid_mt5_results.res"; // from beir queries
             args[2] = "ap";
             args[3] = "nqc";
             args[4] = "true";
