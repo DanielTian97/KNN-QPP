@@ -26,6 +26,7 @@ public class NQCSpecificity extends BaseIDFSpecificity {
         }
         double ref = Arrays.stream(rsvs).average().getAsDouble();
         double maxIDF = 0;
+        double avgIDF = 0;
         double nqc = 0;
         double del;
         for (double rsv: rsvs) {
