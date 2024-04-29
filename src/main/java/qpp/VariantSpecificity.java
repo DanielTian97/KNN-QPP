@@ -67,6 +67,9 @@ public class VariantSpecificity extends NQCSpecificity {
         double variantSpec = 0;
 
         // retInfo.getRSVs(k);
+        if(this.doNormalisation) {
+            retInfo = normaliseScores(retInfo)
+        }
 
         try {
             if (numVariants > 0)
