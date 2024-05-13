@@ -300,9 +300,9 @@ public class TRECDLQPPEvaluatorGenBEIR {
                 variantFile = Constants.QPP_JM_VARIANTS_FILE_W2V;
                 break;
             default:
-                variantFile = Constants.QPP_JM_VARIANTS_FILE_SBERT;
-                variantQidFile = Constants.QPP_JM_VARIANTS_QID_FILE_SBERT;
-                scoreFile = Constants.QPP_JM_SCORE_FILE_SBERT;
+                variantFile = Constants.QPP_JM_VARIANTS_FILE_SBERT_DL_COVID;
+                variantQidFile = Constants.QPP_JM_VARIANTS_QID_FILE_SBERT_DL_COVID;
+                scoreFile = Constants.QPP_JM_SCORE_FILE_SBERT_DL_COVID;
         }
         
         boolean extendOne = Boolean.parseBoolean(args[5]);
