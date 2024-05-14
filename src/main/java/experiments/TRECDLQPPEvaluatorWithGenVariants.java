@@ -120,7 +120,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         }
         //System.out.println(String.format("Avg. %s: %.4f", targetMetric.toString(), Arrays.stream(evaluatedMetricValues).sum()/(double)numQueries));
         tau = new KendalCorrelation().correlation(evaluatedMetricValues, qppEstimates);
-        sare = new SARE().correlation(evaluatedMetricValues, qppEstimates);
+        sare = new SARE().correlation(evaluatedMetricValues, qppEstimates, qids);
         return new TauAndSARE(tau, sare);
     }
 
