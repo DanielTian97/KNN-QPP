@@ -1,6 +1,7 @@
 package experiments;
 
 import correlation.KendalCorrelation;
+import correlation.SARE;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TopDocs;
 import qpp.NQCSpecificity;
@@ -24,6 +25,16 @@ public class TRECDLQPPEvaluatorGenBEIR {
 
     static String QUERY_FILE_MSMARCO = "data/trecdl/pass_full.queries";
     static String QRELS_FILE_MSMARCO = "data/trecdl/pass_full.qrels";
+
+    static class TauAndSARE {
+        double tau;
+        double sare;
+
+        TauAndSARE(double tau, double sare) {
+            this.tau = tau;
+            this.sare = sare;
+        }
+    }
     
     static double scaler = -1;
 
@@ -47,7 +58,7 @@ public class TRECDLQPPEvaluatorGenBEIR {
         System.out.println(scaler);
     }
 
-    static double runExperiment(
+    static TauAndSARE runExperiment(
             String baseQPPModelName, // nqc/uef
             IndexSearcher searcher,
             KNNRelModel knnRelModel,
@@ -57,7 +68,8 @@ public class TRECDLQPPEvaluatorGenBEIR {
             float lambda, int numVariants, Metric targetMetric,
             AllRetrievedResults qvResults) {
 
-        double kendals = 0;
+        double tau = 0;
+        double sare = 0;
 
         QPPMethod baseModel = baseQPPModelName.equals("nqc")? new NQCSpecificity(searcher): new UEFSpecificity(new NQCSpecificity(searcher));
 
@@ -86,6 +98,7 @@ public class TRECDLQPPEvaluatorGenBEIR {
         int numQueries = queries.size();
         double[] qppEstimates = new double[numQueries];
         double[] evaluatedMetricValues = new double[numQueries];
+        String[] qids = new String[numQueries];
 
         int i = 0;       
 
@@ -98,13 +111,15 @@ public class TRECDLQPPEvaluatorGenBEIR {
             evaluatedMetricValues[i] = evaluator.compute(query.getId(), targetMetric);
             qppEstimates[i] = (float) qppMethod.computeSpecificity(
                     query, rr, topDocs, Constants.QPP_NUM_TOPK);
+            qids[i] = query.getId();
 
             //System.out.println(String.format("%s: AP = %.4f, QPP = %.4f", query.getId(), evaluatedMetricValues[i], qppEstimates[i]));
             i++;
         }
         //System.out.println(String.format("Avg. %s: %.4f", targetMetric.toString(), Arrays.stream(evaluatedMetricValues).sum()/(double)numQueries));
-        kendals = new KendalCorrelation().correlation(evaluatedMetricValues, qppEstimates);
-        return kendals;
+        tau = new KendalCorrelation().correlation(evaluatedMetricValues, qppEstimates);
+        sare = new SARE().correlation(evaluatedMetricValues, qppEstimates);
+        return new TauAndSARE(tau, sare);
     }
 
     static void trainAndTest(
@@ -144,17 +159,17 @@ public class TRECDLQPPEvaluatorGenBEIR {
 
         for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
             for (float l = 0; l <= 1.0; l += Constants.QPP_COREL_LAMBDA_STEPS) {
-                double kendals = runExperiment(baseModelName,
+                TauAndSARE analyseResults = runExperiment(baseModelName,
                         searcher, knnRelModel, evaluatorTrain,
                         trainQueries, topDocsMap, l, numVariants, targetMetric,
                         qvResults);
 
                 System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f",
-                        trainQueryFile, l, numVariants, kendals));
-                if (kendals > p.kendals) {
+                        trainQueryFile, l, numVariants, analyseResults.tau));
+                if (analyseResults.tau > p.kendals) {
                     p.l = l;
                     p.numVariants = numVariants;
-                    p.kendals = kendals; // keep track of max
+                    p.kendals = analyseResults.tau; // keep track of max
                 }
             }
         }
@@ -205,10 +220,10 @@ public class TRECDLQPPEvaluatorGenBEIR {
         Evaluator evaluatorTest = new Evaluator(qrelsFile, resFile); // load ret and rel
 
         Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
-        double kendals = runExperiment(baseModelName, retriever.getSearcher(),
+        TauAndSARE analyseResult = runExperiment(baseModelName, retriever.getSearcher(),
                 knnRelModel, evaluatorTest, testQueries, topDocsMapTest,
                 l, numVariants, targetMetric, qvResults);
-        System.out.println(String.format("Target Metric: %s, tau = %.4f", targetMetric.toString(), kendals));
+        System.out.println(String.format("Target Metric: %s, tau = %.4f", targetMetric.toString(), analyseResult.tau));
     }
 
     public static double calculateVariation(double[] array) {
