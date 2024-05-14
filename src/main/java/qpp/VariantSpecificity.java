@@ -33,8 +33,8 @@ public class VariantSpecificity extends NQCSpecificity {
         this.numVariants = numVariants;
         this.lambda = lambda;
         this.scaler = 1;
-        this.doNormalisation = true; // changed to true temporarily - 0429 // for RetroMae and DeepCT, enable it
-//        this.doNormalisation = false; // changed back to false - 0430.15:15
+//        this.doNormalisation = true; // changed to true temporarily - 0429 - 0514
+        this.doNormalisation = false; // changed back to false - 0430.15:15
         this.qvResults = null;
     }
 

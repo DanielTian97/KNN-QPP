@@ -7,8 +7,10 @@ public class SARE implements QPPCorrelationMetric {
     class RankScore implements Comparable<RankScore> {
         int rank;
         double score;
+        String qid;
 
-        RankScore(int rank, double score) { this.rank = rank; this.score = score; }
+        RankScore(int rank, double score) { this.rank = rank; this.score = score; this.qid = "";}
+        RankScore(int rank, double score, String qid) { this.rank = rank; this.score = score; this.qid = qid;}
 
         @Override
         public int compareTo(RankScore o) {
@@ -28,9 +30,36 @@ public class SARE implements QPPCorrelationMetric {
         return sAre;
     }
 
+    public double correlation(double[] gt, double[] pred, String[] qids) {
+        double sAre = computeSARE(gt, pred, qids);
+        return sAre;
+    }
+
     @Override
     public String name() {
         return "SARE";
+    }
+
+    double computeSARE(double[] gt, double[] pred, String[] qids) {
+        RankScore[] gt_rs = new RankScore[gt.length];
+        RankScore[] pred_rs = new RankScore[pred.length];
+
+        for (int i=0; i < gt.length; i++) {
+            gt_rs[i] = new RankScore(i, gt[i], qids[i]);
+            pred_rs[i] = new RankScore(i, pred[i], qids[i]);
+        }
+
+        Arrays.sort(gt_rs);
+        Arrays.sort(pred_rs);
+
+        double sare = 0;
+        for (int i=0; i < gt.length; i++) {
+            int rankdiff = Math.abs(gt_rs[i].rank - pred_rs[i].rank);
+
+            System.out.printf("****PER QUERY SARE: QID=%s\tSARE:%d\n", qids[i], rankdiff);
+            sare += rankdiff/(double)gt.length;
+        }
+        return 1.0 - sare/(double)gt.length;
     }
 
     double computeSARE(double[] gt, double[] pred) {
