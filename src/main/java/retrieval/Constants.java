@@ -59,6 +59,7 @@ public interface Constants {
     int RBO_NUM_DOCS = 20;
     String QPP_JM_VARIANTS_FILE_W2V = "variants/trecdl_qv_w2v.csv";
     String QPP_JM_VARIANTS_FILE_RLM = "variants/trecdl_qv_rlm.csv";
+    String QPP_JM_VARIANTS_FILE_GPT = "variants/trecdl_qv_gpt.csv";
     String QPP_JM_VARIANTS_FILE_SBERT = "variants/trecdl_qv_sbert.csv";
     String QPP_JM_VARIANTS_QID_FILE_SBERT = "variants/trecdl_qv_sbert_qid.csv";
     String QPP_JM_SCORE_FILE_SBERT = "variants/trecdl_qv_sbert_score.csv";
