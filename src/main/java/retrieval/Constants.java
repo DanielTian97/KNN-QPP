@@ -51,10 +51,10 @@ public interface Constants {
 
     boolean USE_CLARITY = false;
     int CLARITY_CAL_RANGE = 5;
-    boolean ABLATION_EXP_FOR_EXTENDING = false;
+    boolean ABLATION_EXP_FOR_EXTENDING = true;
 
     String QV_RESFILE_BASE_PATH = "qvRes";
-    boolean SAME_RETRIEVER = false; // if true, M' is coupled with M
+    boolean SAME_RETRIEVER = true; // if true, M' is coupled with M
 
     int RBO_NUM_DOCS = 20;
     String QPP_JM_VARIANTS_FILE_W2V = "variants/trecdl_qv_w2v.csv";

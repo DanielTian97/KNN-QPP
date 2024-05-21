@@ -141,7 +141,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
 
         OptimalHyperParams p = new OptimalHyperParams();
 
-        for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
+        for (int numVariants=1; numVariants<=1; numVariants++) {
             for (float l = 0; l <= 1.0; l += Constants.QPP_COREL_LAMBDA_STEPS) {
                 double kendals = runExperiment(baseModelName,
                         searcher, knnRelModel, evaluatorTrain,
