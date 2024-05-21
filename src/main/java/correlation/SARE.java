@@ -53,11 +53,11 @@ public class SARE implements QPPCorrelationMetric {
         Arrays.sort(pred_rs);
 
         double sare = 0;
-        System.out.printf("****PER QUERY SARE:\tQNUMBER=%d\n", qids.length);
+//        System.out.printf("****PER QUERY SARE:\tQNUMBER=%d\n", qids.length);
         for (int i=0; i < gt.length; i++) {
             int rankdiff = Math.abs(gt_rs[i].rank - pred_rs[i].rank);
 
-            System.out.printf("****PER QUERY SARE:\tQID=%s\tDIFF:%d\n", qids[i], rankdiff);
+//            System.out.printf("****PER QUERY SARE:\tQID=%s\tDIFF:%d\n", qids[i], rankdiff);
             sare += rankdiff/(double)gt.length;
         }
         return 1.0 - sare/(double)gt.length;
