@@ -1,6 +1,7 @@
 package experiments;
 
 import correlation.KendalCorrelation;
+import correlation.SARE;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TopDocs;
 import qpp.NQCSpecificity;
@@ -26,6 +27,17 @@ public class TRECDLQPPEvaluatorWithGenVariants {
     static final int DL20 = 1;
     static String[] QUERY_FILES = {"data/trecdl/pass_2019.queries", "data/trecdl/pass_2020.queries"};
     static String[] QRELS_FILES = {"data/trecdl/pass_2019.qrels", "data/trecdl/pass_2020.qrels"};
+
+    static class TauAndSARE {
+        double tau;
+        double sare;
+
+        TauAndSARE(double tau, double sare) {
+            this.tau = tau;
+            this.sare = sare;
+        }
+    }
+
     static double scaler = -1;
 
     static void updateScaler(
@@ -48,7 +60,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         System.out.println(scaler);
     }
 
-    static double runExperiment(
+    static TauAndSARE runExperiment(
             String baseQPPModelName, // nqc/uef
             IndexSearcher searcher,
             KNNRelModel knnRelModel,
@@ -58,7 +70,8 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             float lambda, int numVariants, Metric targetMetric,
             AllRetrievedResults qvResults) {
 
-        double kendals = 0;
+        double tau = 0;
+        double sare = 0;
 
         QPPMethod baseModel = baseQPPModelName.equals("nqc")? new NQCSpecificity(searcher): new UEFSpecificity(new NQCSpecificity(searcher));
 
@@ -87,6 +100,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         int numQueries = queries.size();
         double[] qppEstimates = new double[numQueries];
         double[] evaluatedMetricValues = new double[numQueries];
+        String[] qids = new String[numQueries];
 
         int i = 0;       
 
@@ -99,13 +113,15 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             evaluatedMetricValues[i] = evaluator.compute(query.getId(), targetMetric);
             qppEstimates[i] = (float) qppMethod.computeSpecificity(
                     query, rr, topDocs, Constants.QPP_NUM_TOPK);
+            qids[i] = query.getId();
 
             //System.out.println(String.format("%s: AP = %.4f, QPP = %.4f", query.getId(), evaluatedMetricValues[i], qppEstimates[i]));
             i++;
         }
         //System.out.println(String.format("Avg. %s: %.4f", targetMetric.toString(), Arrays.stream(evaluatedMetricValues).sum()/(double)numQueries));
-        kendals = new KendalCorrelation().correlation(evaluatedMetricValues, qppEstimates);
-        return kendals;
+        tau = new KendalCorrelation().correlation(evaluatedMetricValues, qppEstimates);
+        sare = new SARE().correlation(evaluatedMetricValues, qppEstimates, qids);
+        return new TauAndSARE(tau, sare);
     }
 
     static double trainAndTest(
@@ -143,17 +159,17 @@ public class TRECDLQPPEvaluatorWithGenVariants {
 
         for (int numVariants=1; numVariants<=1; numVariants++) {
             for (float l = 0; l <= 1.0; l += Constants.QPP_COREL_LAMBDA_STEPS) {
-                double kendals = runExperiment(baseModelName,
+                TauAndSARE analyseResults = runExperiment(baseModelName,
                         searcher, knnRelModel, evaluatorTrain,
                         trainQueries, topDocsMap, l, numVariants, targetMetric,
                         qvResults);
 
                 System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f",
-                        trainQueryFile, l, numVariants, kendals));
-                if (kendals > p.kendals) {
+                        trainQueryFile, l, numVariants, analyseResults.tau));
+                if (analyseResults.tau > p.kendals) {
                     p.l = l;
                     p.numVariants = numVariants;
-                    p.kendals = kendals; // keep track of max
+                    p.kendals = analyseResults.tau; // keep track of max
                 }
             }
         }
@@ -172,16 +188,16 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         Evaluator evaluatorTest = new Evaluator(testQrelsFile, testResFile); // load ret and rel
 
         Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
-        double kendals_Test = runExperiment(baseModelName,
+        TauAndSARE analyseResultsTest = runExperiment(baseModelName,
                 searcher, knnRelModelTest,
                 evaluatorTest, testQueries, topDocsMapTest, p.l, p.numVariants, targetMetric,
                 qvResults);
 
         System.out.println(String.format(
                 "Kendal's on %s with lambda=%.1f, M=%d: %.4f",
-                testQueryFile, p.l, p.numVariants, kendals_Test));
+                testQueryFile, p.l, p.numVariants, analyseResultsTest.tau));
 
-        return kendals_Test;
+        return analyseResultsTest.tau;
     }
 
     // static double trainAndTest(
@@ -272,10 +288,10 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         Evaluator evaluatorTest = new Evaluator(qrelsFile, resFile); // load ret and rel
 
         Map<String, TopDocs> topDocsMapTest = evaluatorTest.getAllRetrievedResults().castToTopDocs();
-        double kendals = runExperiment(baseModelName, retriever.getSearcher(),
+        TauAndSARE analyseResult = runExperiment(baseModelName, retriever.getSearcher(),
                 knnRelModel, evaluatorTest, testQueries, topDocsMapTest,
                 l, numVariants, targetMetric, qvResults);
-        System.out.println(String.format("Target Metric: %s, tau = %.4f", targetMetric.toString(), kendals));
+        System.out.println(String.format("Target Metric: %s, tau = %.4f", targetMetric.toString(), analyseResult.tau));
     }
 
     public static double calculateVariation(double[] array) {
@@ -349,6 +365,9 @@ public class TRECDLQPPEvaluatorWithGenVariants {
                 break;
             case "w2v":
                 variantFile = Constants.QPP_JM_VARIANTS_FILE_W2V;
+                break;
+            case "gpt":
+                variantFile = Constants.QPP_JM_VARIANTS_FILE_GPT;
                 break;
             default:
                 variantFile = Constants.QPP_JM_VARIANTS_FILE_SBERT;

@@ -81,6 +81,7 @@ public class TRECDLQPPEvaluator {
         int numQueries = queries.size();
         double[] qppEstimates = new double[numQueries];
         double[] evaluatedMetricValues = new double[numQueries];
+        String[] qids = new String[numQueries];
 
         int i = 0;
 
@@ -92,6 +93,7 @@ public class TRECDLQPPEvaluator {
             evaluatedMetricValues[i] = evaluator.compute(query.getId(), targetMetric);
             qppEstimates[i] = (float) qppMethod.computeSpecificity(
                     query, rr, topDocs, Constants.QPP_NUM_TOPK);
+            qids[i] = query.getId();
 
             //System.out.println(String.format("%s: AP = %.4f, QPP = %.4f", query.getId(), evaluatedMetricValues[i], qppEstimates[i]));
             i++;
@@ -99,7 +101,8 @@ public class TRECDLQPPEvaluator {
         //System.out.println(String.format("Avg. %s: %.4f", targetMetric.toString(), Arrays.stream(evaluatedMetricValues).sum()/(double)numQueries));
 
         double tau = new KendalCorrelation().correlation(evaluatedMetricValues, qppEstimates);
-        double sare = new SARE().correlation(evaluatedMetricValues, qppEstimates);
+//        double sare = new SARE().correlation(evaluatedMetricValues, qppEstimates);
+        double sare = new SARE().correlation(evaluatedMetricValues, qppEstimates, qids);
 
         return new TauAndSARE(tau, sare);
     }
