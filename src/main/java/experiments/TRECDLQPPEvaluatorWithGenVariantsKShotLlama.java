@@ -21,7 +21,7 @@ import qrels.AllRetrievedResults; // added 0421
 import java.util.List;
 import java.util.Map;
 
-public class TRECDLQPPEvaluatorWithGenVariants {
+public class TRECDLQPPEvaluatorWithGenVariantsKShotLlama {
 
     static final int DL19 = 0;
     static final int DL20 = 1;
