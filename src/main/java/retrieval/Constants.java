@@ -64,6 +64,7 @@ public interface Constants {
     String QPP_JM_VARIANTS_FILE_SBERT = "variants/trecdl_qv_sbert.csv";
     String QPP_JM_VARIANTS_QID_FILE_SBERT = "variants/trecdl_qv_sbert_qid.csv";
     String QPP_JM_SCORE_FILE_SBERT = "variants/trecdl_qv_sbert_score.csv";
+    String QPP_JM_VARIANTS_FILE_LLAMA3_KSHOT_BASE = "variants/trecdl_qv_llama3";
 
     String QPP_JM_VARIANTS_FILE_SBERT_DL_COVID = "variants/trecdl_qv_sbert_DL_COVID.csv";
     String QPP_JM_VARIANTS_QID_FILE_SBERT_DL_COVID = "variants/trecdl_qv_sbert_qid_DL_COVID.csv";
