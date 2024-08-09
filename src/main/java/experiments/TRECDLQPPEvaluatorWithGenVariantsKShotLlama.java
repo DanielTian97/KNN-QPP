@@ -360,7 +360,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             // System.out.println(qvResults);
         }
 
-        variantFile = Constants.QPP_JM_VARIANTS_FILE_LLAMA3_KSHOT_BASE + "_" + args[7] + "shot_" + args[4] + ".tsv"
+        variantFile = Constants.QPP_JM_VARIANTS_FILE_LLAMA3_KSHOT_BASE + "_" + args[7] + "shot_" + args[4] + ".tsv";
         // switch(args[4]){ 
         //     case "rlm":
         //         variantFile = Constants.QPP_JM_VARIANTS_FILE_RLM;
