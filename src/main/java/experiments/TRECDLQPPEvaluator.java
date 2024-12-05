@@ -92,7 +92,7 @@ public class TRECDLQPPEvaluator {
 
             evaluatedMetricValues[i] = evaluator.compute(query.getId(), targetMetric);
             qppEstimates[i] = (float) qppMethod.computeSpecificity(
-                    query, rr, topDocs, Constants.QPP_NUM_TOPK);
+                    query, rr, topDocs, Constants.QPP_NUM_TOPK, false);
             qids[i] = query.getId();
 
             //System.out.println(String.format("%s: AP = %.4f, QPP = %.4f", query.getId(), evaluatedMetricValues[i], qppEstimates[i]));
