@@ -122,7 +122,7 @@ public class VariantSpecificity extends NQCSpecificity {
                 }
             }
 
-            variantSpecScore = baseModel.computeSpecificity(rq, varInfo, topDocs, k, false);
+            variantSpecScore = baseModel.computeSpecificity(rq, varInfo, topDocs, k, verbose);
 
             //if nothing has been retrieved, then set the weight to 0
             if(variantSpecScore == -1){
@@ -140,7 +140,7 @@ public class VariantSpecificity extends NQCSpecificity {
             }
         }
         
-        return z==0? baseModel.computeSpecificity(q, retInfo, topDocs, k, false): specScore/z;
+        return z==0? baseModel.computeSpecificity(q, retInfo, topDocs, k, verbose): specScore/z;
     }
 
 }

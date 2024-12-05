@@ -74,7 +74,7 @@ public class KNN_NQCSpecificity extends NQCSpecificity {
             RetrievedResults varInfo = new RetrievedResults(rq.getId(), topDocsRQ);
             //Arrays.stream(varInfo.getRSVs(5)).forEach(System.out::println);
 
-            variantSpecScore = baseModel.computeSpecificity(rq, varInfo, topDocs, k);
+            variantSpecScore = baseModel.computeSpecificity(rq, varInfo, topDocs, k, false);
             refSim = rq.getRefSim();
 
             //System.out.println(String.format("%s %.4f", rq.getId(), variantSpecScore));
@@ -82,7 +82,7 @@ public class KNN_NQCSpecificity extends NQCSpecificity {
             z += refSim;
         }
 
-        return z==0? baseModel.computeSpecificity(q, retInfo, topDocs, k): specScore/z;
+        return z==0? baseModel.computeSpecificity(q, retInfo, topDocs, k, false): specScore/z;
     }
 
     double coRelsSpecificity(MsMarcoQuery q, List<MsMarcoQuery> knnQueries,

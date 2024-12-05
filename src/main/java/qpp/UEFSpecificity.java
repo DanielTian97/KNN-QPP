@@ -64,7 +64,7 @@ public class UEFSpecificity implements QPPMethod {
         }
 
         double rankSim = OverlapStats.computeRankDist(topDocs, topDocs_rr);
-        return ((double)NUM_SAMPLES/avgRankDist) * qppMethod.computeSpecificity(q, retInfo, topDocs, k);
+        return ((double)NUM_SAMPLES/avgRankDist) * qppMethod.computeSpecificity(q, retInfo, topDocs, k, verbose);
     }
 
     @Override
