@@ -36,7 +36,7 @@ public class KNN_NQCSpecificity extends NQCSpecificity {
     }
 
     @Override
-    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k) {
+    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose=false) {
         List<MsMarcoQuery> knnQueries = null;
         double variantSpec = 0, colRelSpec = 0;
 

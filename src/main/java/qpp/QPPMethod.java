@@ -5,7 +5,7 @@ import retrieval.MsMarcoQuery;
 import qrels.RetrievedResults;
 
 public interface QPPMethod {
-    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k);
+    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose);
     public String name();
 }
 

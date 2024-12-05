@@ -6,4 +6,4 @@ then
         exit
 fi
 
-mvn exec:java -Dexec.mainClass="experiments.TRECDLQPPEvaluatorWithGenVariantsKShotLlama" -Dexec.args="$1 $2 $3 $4 $5 $6 $7 $8"
+mvn exec:java -Dexec.mainClass="experiments.TRECDLQPPEvaluatorWithGenVariantsKShotLlamaAnalysis" -Dexec.args="$1 $2 $3 $4 $5 $6 $7 $8"

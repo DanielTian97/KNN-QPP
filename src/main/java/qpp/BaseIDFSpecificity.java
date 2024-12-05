@@ -23,7 +23,7 @@ public class BaseIDFSpecificity implements QPPMethod {
     }
 
     @Override
-    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k) {
+    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose=false) {
         double specificity = 0;
         try {
             specificity = maxIDF(q.getQuery());

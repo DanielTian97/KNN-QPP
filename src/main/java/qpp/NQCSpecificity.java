@@ -15,7 +15,7 @@ public class NQCSpecificity extends BaseIDFSpecificity {
     }
 
     @Override
-    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k) {
+    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose=false) {
         return computeNQC(q.getQuery(), retInfo, k);
     }
 

@@ -63,9 +63,13 @@ public class VariantSpecificity extends NQCSpecificity {
     }
 
     @Override
-    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k) {
+    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose=false) {
         List<MsMarcoQuery> knnQueries = null;
         double variantSpec = 0;
+
+        if(verbose) {
+            System.out.printf("target qid: %s, lambda=%f \n", q.getId(), lambda);
+        }
 
         // retInfo.getRSVs(k);
         if(this.doNormalisation) {
@@ -77,11 +81,15 @@ public class VariantSpecificity extends NQCSpecificity {
                 knnQueries = knnRelModel.getKNNs(q, numVariants);
 
             if (knnQueries!=null && !knnQueries.isEmpty()) {
-                variantSpec = variantSpecificity(q, knnQueries, retInfo, topDocs, k);
+                variantSpec = variantSpecificity(q, knnQueries, retInfo, topDocs, k, verbose);
             }
 
         }
         catch (Exception ex) { ex.printStackTrace(); }
+
+        if(verbose & (knnQueries!=null)) {
+            System.out.printf("target=%f, variant=%f \n", baseModel.computeSpecificity(q, retInfo, topDocs, k), variantSpec);
+        }
 
         return knnQueries!=null?
                 lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler:
@@ -89,7 +97,7 @@ public class VariantSpecificity extends NQCSpecificity {
     }
 
     double variantSpecificity(MsMarcoQuery q, List<MsMarcoQuery> knnQueries,
-                              RetrievedResults retInfo, TopDocs topDocs, int k) throws Exception {
+                              RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose=false) throws Exception {
         double specScore = 0;
         double z = 0;
         double variantSpecScore;
@@ -126,6 +134,9 @@ public class VariantSpecificity extends NQCSpecificity {
             //System.out.println(String.format("%s %.4f", rq.getId(), variantSpecScore));
             specScore +=  refSim * variantSpecScore ;
             z += refSim;
+
+            if(verbose):
+                System.out.println(String.format("rqid=%s, sim=%f, est=%f", rq.getId(), refSim, variantSpecScore));
         }
         
         return z==0? baseModel.computeSpecificity(q, retInfo, topDocs, k): specScore/z;
