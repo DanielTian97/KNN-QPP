@@ -58,15 +58,15 @@ public class CoRelSpecificity extends VariantSpecificity {
 
             if (knnQueries!=null && !knnQueries.isEmpty()) {
                 coRelSpec = coRelsSpecificity(q, knnQueries, retInfo, topDocs, k);
-                variantSpec = variantSpecificity(q, knnQueries, retInfo, topDocs, k);
+                variantSpec = variantSpecificity(q, knnQueries, retInfo, topDocs, k, verbose);
             }
 
         }
         catch (Exception ex) { ex.printStackTrace(); }
 
         return knnQueries!=null?
-                0.9 * lambda * variantSpec + 0.1 * lambda * coRelSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler: //scaler now is set to 1
-                baseModel.computeSpecificity(q, retInfo, topDocs, k);
+                0.9 * lambda * variantSpec + 0.1 * lambda * coRelSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k, verbose) / this.scaler: //scaler now is set to 1
+                baseModel.computeSpecificity(q, retInfo, topDocs, k, verbose);
     }
 
     // List<MsMarcoQuery> extendQueryVariants()(MsMarcoQuery q, List<MsMarcoQuery> knnQueries) throws Exception {
@@ -114,7 +114,7 @@ public class CoRelSpecificity extends VariantSpecificity {
             // }
             // topQueriesRetrievedResults = normaliseScores(topQueriesRetrievedResults); // do normalisation compulsorily
 
-            corelEstimate = baseModel.computeSpecificity(rq, topQueriesRetrievedResults, null, Constants.CLARITY_CAL_RANGE);
+            corelEstimate = baseModel.computeSpecificity(rq, topQueriesRetrievedResults, null, Constants.CLARITY_CAL_RANGE, false);
 
             if(corelEstimate == -1){
                 refSim = 0;
@@ -126,7 +126,7 @@ public class CoRelSpecificity extends VariantSpecificity {
             z += refSim;
         }
 
-        return z==0? baseModel.computeSpecificity(q, retInfo, topDocs, k): corelScore/z;
+        return z==0? baseModel.computeSpecificity(q, retInfo, topDocs, k, false): corelScore/z;
     }
 
 }
