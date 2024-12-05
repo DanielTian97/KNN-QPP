@@ -55,8 +55,8 @@ public class KNN_NQCSpecificity extends NQCSpecificity {
 
         //return knnQueries!=null? lambda * variantSpec + (1-lambda) * colRelSpec : baseModel.computeSpecificity(q, retInfo, topDocs, k);
         return knnQueries!=null?
-                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k):
-                baseModel.computeSpecificity(q, retInfo, topDocs, k);
+                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k, false):
+                baseModel.computeSpecificity(q, retInfo, topDocs, k, false);
     }
 
     double variantSpecificity(MsMarcoQuery q, List<MsMarcoQuery> knnQueries,
