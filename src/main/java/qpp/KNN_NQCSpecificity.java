@@ -113,7 +113,7 @@ public class KNN_NQCSpecificity extends NQCSpecificity {
         }
         coRelInfo.sortResultTuples();
 
-        double corelSpec = baseModel.computeSpecificity(q, coRelInfo, topDocs, k);
+        double corelSpec = baseModel.computeSpecificity(q, coRelInfo, topDocs, k, false);
         return corelSpec;
         //return corelEstimateAvg;
     }

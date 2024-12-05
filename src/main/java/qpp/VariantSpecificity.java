@@ -88,12 +88,12 @@ public class VariantSpecificity extends NQCSpecificity {
         catch (Exception ex) { ex.printStackTrace(); }
 
         if(verbose & (knnQueries!=null)) {
-            System.out.printf("target=%f, variant=%f \n", baseModel.computeSpecificity(q, retInfo, topDocs, k), variantSpec);
+            System.out.printf("target=%f, variant=%f \n", baseModel.computeSpecificity(q, retInfo, topDocs, k, verbose), variantSpec);
         }
 
         return knnQueries!=null?
-                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k) / this.scaler:
-                baseModel.computeSpecificity(q, retInfo, topDocs, k);
+                lambda * variantSpec + (1-lambda) * baseModel.computeSpecificity(q, retInfo, topDocs, k, verbose) / this.scaler:
+                baseModel.computeSpecificity(q, retInfo, topDocs, k, verbose);
     }
 
     double variantSpecificity(MsMarcoQuery q, List<MsMarcoQuery> knnQueries,
