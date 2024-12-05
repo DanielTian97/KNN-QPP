@@ -162,8 +162,10 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaAnalysis {
 
         OptimalHyperParams p = new OptimalHyperParams();
 
-        for (int numVariants : {1, 5}) {
-            for (float l : {0, 0.5, 1}) {
+        int[] tested_nums = {1, 5};
+        float[] tested_lams = {0, (float)0.5, 1};
+        for (int numVariants : tested_nums) {
+            for (float l : tested_lams) {
                 TauAndSARE analyseResults = runExperiment(baseModelName,
                     searcher, knnRelModel, evaluatorTrain,
                     trainQueries, topDocsMap, l, numVariants, targetMetric,
