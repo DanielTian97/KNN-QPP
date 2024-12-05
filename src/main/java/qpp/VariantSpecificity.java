@@ -63,7 +63,7 @@ public class VariantSpecificity extends NQCSpecificity {
     }
 
     @Override
-    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose=false) {
+    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose) {
         List<MsMarcoQuery> knnQueries = null;
         double variantSpec = 0;
 

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
 
-public class TRECDLQPPEvaluatorWithGenVariantsKShotLlama {
+public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaAnalysis {
 
     static final int DL19 = 0;
     static final int DL20 = 1;
@@ -113,7 +113,7 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlama {
 
             evaluatedMetricValues[i] = evaluator.compute(query.getId(), targetMetric);
             qppEstimates[i] = (float) qppMethod.computeSpecificity(
-                    query, rr, topDocs, Constants.QPP_NUM_TOPK, verbose=true);
+                    query, rr, topDocs, Constants.QPP_NUM_TOPK, true);
             qids[i] = query.getId();
 
             //System.out.println(String.format("%s: AP = %.4f, QPP = %.4f", query.getId(), evaluatedMetricValues[i], qppEstimates[i]));

@@ -47,7 +47,7 @@ public class CoRelSpecificity extends VariantSpecificity {
     // }
 
     @Override
-    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose=false) {
+    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose) {
         List<MsMarcoQuery> knnQueries = null;
         double coRelSpec = 0;
         double variantSpec = 0;

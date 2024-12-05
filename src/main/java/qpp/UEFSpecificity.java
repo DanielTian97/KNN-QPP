@@ -41,7 +41,7 @@ public class UEFSpecificity implements QPPMethod {
     }
 
     @Override
-    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose=false) {
+    public double computeSpecificity(MsMarcoQuery q, RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose) {
         TopDocs topDocs_rr = null;
         double avgRankDist = 0;
         RelevanceModelIId rlm = null;
