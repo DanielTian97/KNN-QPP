@@ -97,7 +97,7 @@ public class VariantSpecificity extends NQCSpecificity {
     }
 
     double variantSpecificity(MsMarcoQuery q, List<MsMarcoQuery> knnQueries,
-                              RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose=false) throws Exception {
+                              RetrievedResults retInfo, TopDocs topDocs, int k, boolean verbose) throws Exception {
         double specScore = 0;
         double z = 0;
         double variantSpecScore;
