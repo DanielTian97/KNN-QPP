@@ -162,7 +162,7 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaAnalysis {
 
         OptimalHyperParams p = new OptimalHyperParams();
 
-        int[] tested_nums = {1, 5};
+        int[] tested_nums = {1, 3, 5, 7, 9};
         float[] tested_lams = {0, (float)0.5, 1};
         for (int numVariants : tested_nums) {
             for (float l : tested_lams) {
