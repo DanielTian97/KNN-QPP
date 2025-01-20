@@ -114,8 +114,8 @@ public class TRECDLQPPEvaluatorWithGenVariants {
             qppEstimates[i] = (float) qppMethod.computeSpecificity(
                     query, rr, topDocs, Constants.QPP_NUM_TOPK, false);
             qids[i] = query.getId();
-
-            //System.out.println(String.format("%s: AP = %.4f, QPP = %.4f", query.getId(), evaluatedMetricValues[i], qppEstimates[i]));
+            // enable logging for get UEF values -- 20 01 25
+            System.out.println(String.format("%s: AP = %.4f, QPP = %.4f", query.getId(), evaluatedMetricValues[i], qppEstimates[i]));
             i++;
         }
         //System.out.println(String.format("Avg. %s: %.4f", targetMetric.toString(), Arrays.stream(evaluatedMetricValues).sum()/(double)numQueries));
@@ -156,9 +156,10 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         Map<String, TopDocs> topDocsMap = evaluatorTrain.getAllRetrievedResults().castToTopDocs();
 
         OptimalHyperParams p = new OptimalHyperParams();
-
-        for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
-            for (float l = 0; l <= 1.0; l += Constants.QPP_COREL_LAMBDA_STEPS) {
+        int numVariants=1; //set temporarily for getting results of UEF
+//        for (int numVariants=1; numVariants<=maxNumVariants; numVariants++) {
+            float l = 0; //set temporarily for getting results of UEF
+//            for (float l = 0; l <= 1.0; l += Constants.QPP_COREL_LAMBDA_STEPS) {
                 TauAndSARE analyseResults = runExperiment(baseModelName,
                         searcher, knnRelModel, evaluatorTrain,
                         trainQueries, topDocsMap, l, numVariants, targetMetric,
@@ -171,8 +172,8 @@ public class TRECDLQPPEvaluatorWithGenVariants {
                     p.numVariants = numVariants;
                     p.kendals = analyseResults.tau; // keep track of max
                 }
-            }
-        }
+//            }
+//        }
         System.out.println(String.format("The best settings: lambda=%.1f, nv=%d", p.l, p.numVariants));
         // apply this setting on the test set
         KNNRelModel knnRelModelTest;
