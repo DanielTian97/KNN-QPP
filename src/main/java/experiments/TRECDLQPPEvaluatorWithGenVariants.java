@@ -7,6 +7,7 @@ import org.apache.lucene.search.TopDocs;
 import qpp.NQCSpecificity;
 import qpp.QPPMethod;
 import qpp.UEFSpecificity;
+//import qpp.RSDSpecificity;
 import qpp.VariantSpecificity;
 import qpp.CoRelSpecificity;
 import qrels.Evaluator;
@@ -73,7 +74,13 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         double tau = 0;
         double sare = 0;
 
-        QPPMethod baseModel = baseQPPModelName.equals("nqc")? new NQCSpecificity(searcher): new UEFSpecificity(new NQCSpecificity(searcher));
+        QPPMethod baseModel = baseQPPModelName.equals("nqc") ? new NQCSpecificity(searcher) : new UEFSpecificity(new NQCSpecificity(searcher));
+
+//        if(baseQPPModelName.equals("rsd")) {
+//            QPPMethod baseModel = new RSDSpecificity(new NQCSpecificity(searcher));
+//        } else {
+//            QPPMethod baseModel = baseQPPModelName.equals("nqc") ? new NQCSpecificity(searcher) : new UEFSpecificity(new NQCSpecificity(searcher));
+//        }
 
         boolean useClarity = Constants.USE_CLARITY; // hard coded temporarily
         VariantSpecificity qppMethod;
