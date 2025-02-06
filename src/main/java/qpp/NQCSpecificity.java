@@ -29,13 +29,14 @@ public class NQCSpecificity extends BaseIDFSpecificity {
         double avgIDF = 0;
         double nqc = 0;
         double del;
+
+        System.out.println(q);
+        System.out.println(rsvs);
         for (double rsv: rsvs) {
             del = rsv - ref;
             nqc += del*del;
         }
         nqc /= (double)rsvs.length;
-
-        System.out.println(q);
 
         try {
             // dekhar jonyo je ei duto baaler modhye konta better baal!
