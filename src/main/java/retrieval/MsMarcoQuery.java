@@ -154,6 +154,7 @@ public class MsMarcoQuery implements Comparable<MsMarcoQuery> {
 
     public Query getQuery() { return query; }
     public String getId() { return qid; }
+    public String getqText() {return qText; }
 
     public PerQueryRelDocs getRelDocSet() { return relDocs; }
 
