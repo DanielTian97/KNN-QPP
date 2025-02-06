@@ -89,15 +89,15 @@ public class QPPEvaluatorSimple {
 
             TopDocs topDocs = topDocsMap.get(query.getId());
 
-            if(query.getId().equals("405163_bm25-5_1")){
-                System.out.println(topDocs.toString());
+            try {
+                qppEstimates[i] = (float) baseModel.computeSpecificity(
+                        query, rr, topDocs, Constants.QPP_NUM_TOPK, false);
+                qids[i] = query.getId();
+            } catch (Exception e) {
+                System.out.println(query.getId());
             }
-//
-//            qppEstimates[i] = (float) baseModel.computeSpecificity(
-//                    query, rr, topDocs, Constants.QPP_NUM_TOPK, false);
-//            qids[i] = query.getId();
-//
-//            System.out.println(String.format("%s: QPP = %.4f", query.getId(), qppEstimates[i]));
+
+            System.out.println(String.format("%s: QPP = %.4f", query.getId(), qppEstimates[i]));
             i++;
         }
 
