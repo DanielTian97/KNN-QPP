@@ -87,11 +87,11 @@ public class QPPEvaluatorSimple {
 
             RetrievedResults rr = res.getRetrievedResultsForQueryId(query.getId());
 
-            if(query.getId().equals("405163_bm25-5_1")){
-                System.out.println(topDocsMap.get(query.getId()));
-            }
+            TopDocs topDocs = topDocsMap.get(query.getId());
 
-//            TopDocs topDocs = topDocsMap.get(query.getId());
+            if(query.getId().equals("405163_bm25-5_1")){
+                System.out.println(topDocs);
+            }
 //
 //            qppEstimates[i] = (float) baseModel.computeSpecificity(
 //                    query, rr, topDocs, Constants.QPP_NUM_TOPK, false);
