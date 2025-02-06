@@ -94,7 +94,8 @@ public class QPPEvaluatorSimple {
                         query, rr, topDocs, Constants.QPP_NUM_TOPK, false);
                 qids[i] = query.getId();
             } catch (Exception e) {
-                System.out.println(query.getId());
+//                System.out.println(query.getId());
+                query.getId(); // no meaning here, just stop printing
             }
 
             System.out.println(String.format("%s: QPP = %.4f", query.getId(), qppEstimates[i]));
