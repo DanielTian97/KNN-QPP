@@ -90,7 +90,7 @@ public class QPPEvaluatorSimple {
             TopDocs topDocs = topDocsMap.get(query.getId());
 
             if(query.getId().equals("405163_bm25-5_1")){
-                System.out.println(topDocs);
+                System.out.println(topDocs.toString());
             }
 //
 //            qppEstimates[i] = (float) baseModel.computeSpecificity(
