@@ -24,14 +24,17 @@ public class NQCSpecificity extends BaseIDFSpecificity {
         if(rsvs.length == 0){
             return -1; //if nothing has been retrieved, return a special value telling the caller retrieval failed
         }
+
+        System.out.println(q);
+
         double ref = Arrays.stream(rsvs).average().getAsDouble();
+
+        System.out.println(ref);
         double maxIDF = 0;
         double avgIDF = 0;
         double nqc = 0;
         double del;
 
-        System.out.println(q);
-        System.out.println(rsvs);
         for (double rsv: rsvs) {
             del = rsv - ref;
             nqc += del*del;
