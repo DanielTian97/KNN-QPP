@@ -91,13 +91,13 @@ public class QPPEvaluatorSimple {
                 System.out.println(topDocsMap.get(query.getId()));
             }
 
-            TopDocs topDocs = topDocsMap.get(query.getId());
-
-            qppEstimates[i] = (float) baseModel.computeSpecificity(
-                    query, rr, topDocs, Constants.QPP_NUM_TOPK, false);
-            qids[i] = query.getId();
-
-            System.out.println(String.format("%s: QPP = %.4f", query.getId(), qppEstimates[i]));
+//            TopDocs topDocs = topDocsMap.get(query.getId());
+//
+//            qppEstimates[i] = (float) baseModel.computeSpecificity(
+//                    query, rr, topDocs, Constants.QPP_NUM_TOPK, false);
+//            qids[i] = query.getId();
+//
+//            System.out.println(String.format("%s: QPP = %.4f", query.getId(), qppEstimates[i]));
             i++;
         }
 
