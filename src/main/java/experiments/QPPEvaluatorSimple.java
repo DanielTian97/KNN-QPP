@@ -87,7 +87,7 @@ public class QPPEvaluatorSimple {
 
             RetrievedResults rr = res.getRetrievedResultsForQueryId(query.getId());
 
-            if(query.getId().equals("405163_bm25-5_0")){
+            if(query.getId().equals("405163_bm25-5_1")){
                 System.out.println(topDocsMap.get(query.getId()));
             }
 
