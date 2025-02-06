@@ -25,11 +25,7 @@ public class NQCSpecificity extends BaseIDFSpecificity {
             return -1; //if nothing has been retrieved, return a special value telling the caller retrieval failed
         }
 
-        System.out.println(q);
-
         double ref = Arrays.stream(rsvs).average().getAsDouble();
-
-        System.out.println(ref);
         double maxIDF = 0;
         double avgIDF = 0;
         double nqc = 0;
@@ -53,7 +49,8 @@ public class NQCSpecificity extends BaseIDFSpecificity {
     }
 
     public double computeNQC(Query q, RetrievedResults topDocs, int k) {
-
+        System.out.println(q);
+        System.out.println(topDocs);
         return computeNQC(q, topDocs.getRSVs(k), k);
         
     }
