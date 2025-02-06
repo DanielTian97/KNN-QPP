@@ -35,6 +35,8 @@ public class NQCSpecificity extends BaseIDFSpecificity {
         }
         nqc /= (double)rsvs.length;
 
+        System.out.println(q);
+
         try {
             // dekhar jonyo je ei duto baaler modhye konta better baal!
             avgIDF = Arrays.stream(idfs(q)).average().getAsDouble();
