@@ -123,7 +123,7 @@ public class TRECDLQPPEvaluatorWithGenVariants {
                     query, rr, topDocs, Constants.QPP_NUM_TOPK, false);
             qids[i] = query.getId();
             // enable logging for get UEF values -- 20 01 25
-            System.out.println(String.format("%s: AP = %.4f, QPP = %.4f", query.getId(), evaluatedMetricValues[i], qppEstimates[i]));
+//            System.out.println(String.format("%s: AP = %.4f, QPP = %.4f", query.getId(), evaluatedMetricValues[i], qppEstimates[i]));
             i++;
         }
         //System.out.println(String.format("Avg. %s: %.4f", targetMetric.toString(), Arrays.stream(evaluatedMetricValues).sum()/(double)numQueries));
