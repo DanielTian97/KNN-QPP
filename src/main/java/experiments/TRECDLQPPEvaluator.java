@@ -1,5 +1,6 @@
 package experiments;
 
+import correlation.PearsonCorrelation;
 import correlation.SARE;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.lucene.search.IndexSearcher;
@@ -102,9 +103,13 @@ public class TRECDLQPPEvaluator {
 
         double tau = new KendalCorrelation().correlation(evaluatedMetricValues, qppEstimates);
 //        double sare = new SARE().correlation(evaluatedMetricValues, qppEstimates);
-        double sare = new SARE().correlation(evaluatedMetricValues, qppEstimates, qids);
+//        double sare = new SARE().correlation(evaluatedMetricValues, qppEstimates, qids);
+//
+//        return new TauAndSARE(tau, sare);
 
-        return new TauAndSARE(tau, sare);
+        double r = new PearsonCorrelation().correlation(evaluatedMetricValues, qppEstimates);
+
+        return new TRECDLQPPEvaluator.TauAndSARE(tau, r);
     }
 
     static TauAndSARE trainAndTest(
@@ -144,7 +149,7 @@ public class TRECDLQPPEvaluator {
                         l, numVariants, targetMetric,
                         qvResults);
 
-                System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f",
+                System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f, r = %.4f",
                         trainQueryFile, l, numVariants, tauAndSARE.tau, tauAndSARE.sare));
                 if (tauAndSARE.tau > p.kendals) {
                     p.l = l;

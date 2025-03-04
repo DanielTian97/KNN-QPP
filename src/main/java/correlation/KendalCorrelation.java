@@ -14,3 +14,4 @@ public class KendalCorrelation implements QPPCorrelationMetric {
         return "tau";
     }
 }
+

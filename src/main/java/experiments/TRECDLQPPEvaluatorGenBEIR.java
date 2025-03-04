@@ -1,6 +1,7 @@
 package experiments;
 
 import correlation.KendalCorrelation;
+import correlation.PearsonCorrelation;
 import correlation.SARE;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TopDocs;
@@ -118,6 +119,7 @@ public class TRECDLQPPEvaluatorGenBEIR {
         }
         //System.out.println(String.format("Avg. %s: %.4f", targetMetric.toString(), Arrays.stream(evaluatedMetricValues).sum()/(double)numQueries));
         tau = new KendalCorrelation().correlation(evaluatedMetricValues, qppEstimates);
+
         sare = new SARE().correlation(evaluatedMetricValues, qppEstimates);
         return new TauAndSARE(tau, sare);
     }

@@ -1,6 +1,7 @@
 package experiments;
 
 import correlation.KendalCorrelation;
+import correlation.PearsonCorrelation;
 import correlation.SARE;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TopDocs;
@@ -128,8 +129,11 @@ public class TRECDLQPPEvaluatorWithGenVariants {
         }
         //System.out.println(String.format("Avg. %s: %.4f", targetMetric.toString(), Arrays.stream(evaluatedMetricValues).sum()/(double)numQueries));
         tau = new KendalCorrelation().correlation(evaluatedMetricValues, qppEstimates);
-        sare = new SARE().correlation(evaluatedMetricValues, qppEstimates, qids);
-        return new TauAndSARE(tau, sare);
+//        sare = new SARE().correlation(evaluatedMetricValues, qppEstimates, qids);
+//        return new TauAndSARE(tau, sare);
+        double r = new PearsonCorrelation().correlation(evaluatedMetricValues, qppEstimates);
+
+        return new TauAndSARE(tau, r);
     }
 
     static double trainAndTest(
@@ -173,8 +177,8 @@ public class TRECDLQPPEvaluatorWithGenVariants {
                         trainQueries, topDocsMap, l, numVariants, targetMetric,
                         qvResults);
 
-                System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f",
-                        trainQueryFile, l, numVariants, analyseResults.tau));
+                System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f, r = %.4f",
+                        trainQueryFile, l, numVariants, analyseResults.tau, analyseResults.sare));
                 if (analyseResults.tau > p.kendals) {
                     p.l = l;
                     p.numVariants = numVariants;
