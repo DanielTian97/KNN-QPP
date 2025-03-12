@@ -1,6 +1,8 @@
 package correlation;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.HashMap;
 
 public class SARE implements QPPCorrelationMetric {
 
@@ -35,16 +37,60 @@ public class SARE implements QPPCorrelationMetric {
         return sAre;
     }
 
+    public double correlationWithLog(double[] gt, double[] pred, String[] qids) {
+        computePerQuerySARE(gt, pred, qids, true);
+        double sAre = computeSARE(gt, pred, qids);
+        return sAre;
+    }
+
+//    public double correlation(double[] gt, double[] pred, String[] qids) {
+//        double sAre = computeSARE(gt, pred, qids);
+//        return sAre;
+//    }
+
     @Override
     public String name() {
         return "SARE";
     }
 
-    double computeSARE(double[] gt, double[] pred, String[] qids) {
+    double computeSARE(double[] gt, double[] pred) {
         RankScore[] gt_rs = new RankScore[gt.length];
         RankScore[] pred_rs = new RankScore[pred.length];
+        double[] rankDiffs = new double[pred.length];
 
-        for (int i=0; i < gt.length; i++) {
+        for (int i = 0; i < gt.length; i++) {
+            gt_rs[i] = new RankScore(i, gt[i], Integer.toString(i));
+            pred_rs[i] = new RankScore(i, pred[i], Integer.toString(i));
+        }
+
+        Arrays.sort(gt_rs);
+        Arrays.sort(pred_rs);
+
+        Map<String, RankScore> map_gts = new HashMap<>();
+        Map<String, RankScore> map_preds = new HashMap<>();
+
+        for (int i = 0; i < gt.length; i++) {
+            gt_rs[i].rank = i;
+            pred_rs[i].rank = i;
+            map_gts.put(gt_rs[i].qid, gt_rs[i]);
+            map_preds.put(pred_rs[i].qid, pred_rs[i]);
+        }
+
+        for (String id : map_gts.keySet()) {
+            int gt_rank = map_gts.get(id).rank;
+            int pred_rank = map_preds.get(id).rank;
+            rankDiffs[Integer.parseInt(id)] = Math.abs(gt_rank - pred_rank) / (double) gt.length;
+        }
+
+        return Arrays.stream(rankDiffs).average().getAsDouble();
+    }
+
+    double[] computePerQuerySARE(double[] gt, double[] pred, String[] qids, boolean printLog) {
+        RankScore[] gt_rs = new RankScore[gt.length];
+        RankScore[] pred_rs = new RankScore[pred.length];
+        double[] rankDiffs = new double[pred.length];
+
+        for (int i = 0; i < gt.length; i++) {
             gt_rs[i] = new RankScore(i, gt[i], qids[i]);
             pred_rs[i] = new RankScore(i, pred[i], qids[i]);
         }
@@ -52,41 +98,46 @@ public class SARE implements QPPCorrelationMetric {
         Arrays.sort(gt_rs);
         Arrays.sort(pred_rs);
 
-        double sare = 0;
-//        System.out.printf("****PER QUERY SARE:\tQNUMBER=%d\n", qids.length);
-        for (int i=0; i < gt.length; i++) {
-            int rankdiff = Math.abs(gt_rs[i].rank - pred_rs[i].rank);
+        Map<String, RankScore> map_gts = new HashMap<>();
+        Map<String, RankScore> map_preds = new HashMap<>();
 
-//            System.out.printf("****PER QUERY SARE:\tQID=%s\tDIFF:%d\n", qids[i], rankdiff);
-            sare += rankdiff/(double)gt.length;
+        for (int i = 0; i < gt.length; i++) {
+            gt_rs[i].rank = i;
+            pred_rs[i].rank = i;
+            map_gts.put(gt_rs[i].qid, gt_rs[i]);
+            map_preds.put(pred_rs[i].qid, pred_rs[i]);
         }
-        return 1.0 - sare/(double)gt.length;
+
+        int i = 0;
+        for (String id : map_gts.keySet()) {
+            int gt_rank = map_gts.get(id).rank;
+            int pred_rank = map_preds.get(id).rank;
+            double rankDiff = Math.abs(gt_rank - pred_rank) / (double) gt.length;
+            rankDiffs[i++] = rankDiff;
+            if(printLog){
+                System.out.format("qid: %s, rankDiff = %.4f", id, rankDiff);
+            }
+        }
+
+        return rankDiffs;
     }
 
-    double computeSARE(double[] gt, double[] pred) {
-        RankScore[] gt_rs = new RankScore[gt.length];
-        RankScore[] pred_rs = new RankScore[pred.length];
 
-        for (int i=0; i < gt.length; i++) {
-            gt_rs[i] = new RankScore(i, gt[i]);
-            pred_rs[i] = new RankScore(i, pred[i]);
-        }
-
-        Arrays.sort(gt_rs);
-        Arrays.sort(pred_rs);
-
-        double sare = 0;
-        for (int i=0; i < gt.length; i++) {
-            int rankdiff = Math.abs(gt_rs[i].rank - pred_rs[i].rank);
-            sare += rankdiff/(double)gt.length;
-        }
-        return 1.0 - sare/(double)gt.length;
+    double computeSARE(double[] gt, double[] pred, String[] qids) {
+        double[] rankDiffs = computePerQuerySARE(gt, pred, qids, false);
+        return Arrays.stream(rankDiffs).average().getAsDouble();
     }
 
     public static void main(String[] args) {
         double[] gt =   {0.32, 0.15, 0.67, 0.08, 0.96, 0.45};
         double[] pred = {0.22, 0.75, 0.47, 0.83, 0.16, 0.05};
-
+        System.out.println("Test 1:");
         System.out.println(String.format("SARE: %.4f", (new SARE()).correlation(gt, pred)));
+
+        String[] qids =   {"100", "200", "300", "400", "500", "600"};
+        System.out.println("Test 2:");
+        System.out.println(String.format("SARE: %.4f", (new SARE()).correlation(gt, pred, qids)));
+
+        System.out.println("The answers for both questions should be 0.4444.");
     }
 }
