@@ -115,7 +115,8 @@ public class SARE implements QPPCorrelationMetric {
             double rankDiff = Math.abs(gt_rank - pred_rank) / (double) gt.length;
             rankDiffs[i++] = rankDiff;
             if(printLog){
-                System.out.format("qid: %s, rankDiff = %.4f\n", id, rankDiff);
+                System.out.format("qid: %s, qpp_esti = %.4f, metric_gt = %.4f, rankDiff = %.4f\n",
+                        id, map_preds.get(id).score, map_gts.get(id).score, rankDiff);
             }
         }
 

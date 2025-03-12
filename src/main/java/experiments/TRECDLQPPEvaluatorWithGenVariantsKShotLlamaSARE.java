@@ -125,9 +125,6 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaSARE {
                         trainQueries, topDocsMap, l, numVariants, targetMetric,
                         qvResults);
 
-        System.out.println(String.format("Train on %s -- (%.1f, %d): tau = %.4f, r = %.4f",
-                        trainQueryFile, l, numVariants, analyseResults.tau, analyseResults.sare));
-
         return analyseResults;
     }
 
@@ -163,21 +160,21 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaSARE {
             OneStepRetriever retriever = new OneStepRetriever(Constants.QUERY_FILE_TEST);
             Settings.init(retriever.getSearcher());
 
-            TauAndSARE sareOnTest = trainAndTest(args[3], retriever, targetMetric,
+            TauAndSARE sareOn19 = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL19], QRELS_FILES[DL19], args[0],
                     variantFile, variantQidFile, scoreFile, 
                     extendOne, useRBO, qvResults, Integer.parseInt(args[7]), Float.parseFloat(args[8]));
 
             System.out.println(String.format("TREC-19: Target Metric: %s, tau = %.4f, sARE = %.4f",
-                     targetMetric.toString(), sareOnTest.tau, sareOnTest.sare));
+                     targetMetric.toString(), sareOn19.tau, sareOn19.sare));
 
-            TauAndSARE sareOnTrain = trainAndTest(args[3], retriever, targetMetric,
+            TauAndSARE sareOn20 = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL20], QRELS_FILES[DL20], args[1],
                     variantFile, variantQidFile, scoreFile, 
                     extendOne, useRBO, qvResults, Integer.parseInt(args[7]), Float.parseFloat(args[8]));
 
             System.out.println(String.format("TREC-20: Target Metric: %s, tau = %.4f, sARE = %.4f",
-                    targetMetric.toString(), sareOnTest.tau, sareOnTest.sare));
+                    targetMetric.toString(), sareOn20.tau, sareOn20.sare));
 
             TauAndSARE sareOn19Base = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL19], QRELS_FILES[DL19], args[0],
