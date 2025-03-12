@@ -133,7 +133,7 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaSARE {
 
     public static void main(String[] args) {
 
-        if (args.length < 10) {
+        if (args.length < 9) {
             System.out.println("Required arguments: <res file DL 19> <res file DL 20> <metric (ap/ndcg)> <uef/nqc> <rlm/w2v (variant gen)> <extend queries(1)?> <k> <lambda>");
             args = new String[9];
             args[0] = "runs/splade.dl19.100.pp";
