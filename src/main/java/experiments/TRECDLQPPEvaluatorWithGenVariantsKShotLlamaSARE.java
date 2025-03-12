@@ -158,8 +158,7 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaSARE {
         variantFile = Constants.QPP_JM_VARIANTS_FILE_LLAMA3_KSHOT_BASE + "_" + args[6] + "shot_" + args[4] + ".tsv";
         
         boolean extendOne = Boolean.parseBoolean(args[5]);
-        boolean useRBO = Boolean.parseBoolean(args[6]);
-
+        boolean useRBO = true;
         try {
             OneStepRetriever retriever = new OneStepRetriever(Constants.QUERY_FILE_TEST);
             Settings.init(retriever.getSearcher());
