@@ -142,10 +142,9 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaSARE {
             args[3] = "nqc";
             args[4] = "sbert"; //qv method (to retrieve the k-shot example)
             args[5] = "false"; //extend to doc->query
-            args[6] = "false"; //useRBO
-            args[7] = "1"; //number of shots
-            args[8] = "5";
-            args[9] = "0.5";
+            args[6] = "1"; //number of shots
+            args[7] = "5";
+            args[8] = "0.5";
         }
 
         Metric targetMetric = args[2].equals("ap")? Metric.AP : Metric.nDCG;
@@ -156,7 +155,7 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaSARE {
         //here ..... 0421
         AllRetrievedResults qvResults = null;
 
-        variantFile = Constants.QPP_JM_VARIANTS_FILE_LLAMA3_KSHOT_BASE + "_" + args[7] + "shot_" + args[4] + ".tsv";
+        variantFile = Constants.QPP_JM_VARIANTS_FILE_LLAMA3_KSHOT_BASE + "_" + args[6] + "shot_" + args[4] + ".tsv";
         
         boolean extendOne = Boolean.parseBoolean(args[5]);
         boolean useRBO = Boolean.parseBoolean(args[6]);
@@ -168,7 +167,7 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaSARE {
             TauAndSARE sareOnTest = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL19], QRELS_FILES[DL19], args[0],
                     variantFile, variantQidFile, scoreFile, 
-                    extendOne, useRBO, qvResults, Integer.parseInt(args[8]), Float.parseFloat(args[9]));
+                    extendOne, useRBO, qvResults, Integer.parseInt(args[7]), Float.parseFloat(args[8]));
 
             System.out.println(String.format("TREC-19: Target Metric: %s, tau = %.4f, sARE = %.4f",
                      targetMetric.toString(), sareOnTest.tau, sareOnTest.sare));
@@ -176,7 +175,7 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaSARE {
             TauAndSARE sareOnTrain = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL20], QRELS_FILES[DL20], args[1],
                     variantFile, variantQidFile, scoreFile, 
-                    extendOne, useRBO, qvResults, Integer.parseInt(args[8]), Float.parseFloat(args[9]));
+                    extendOne, useRBO, qvResults, Integer.parseInt(args[7]), Float.parseFloat(args[8]));
 
             System.out.println(String.format("TREC-20: Target Metric: %s, tau = %.4f, sARE = %.4f",
                     targetMetric.toString(), sareOnTest.tau, sareOnTest.sare));
@@ -184,7 +183,7 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaSARE {
             TauAndSARE sareOn19Base = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL19], QRELS_FILES[DL19], args[0],
                     variantFile, variantQidFile, scoreFile,
-                    extendOne, useRBO, qvResults, Integer.parseInt(args[8]), (float)0);
+                    extendOne, useRBO, qvResults, Integer.parseInt(args[7]), (float)0);
 
             System.out.println(String.format("Base-TREC-19: Target Metric: %s, tau = %.4f, sARE = %.4f",
                     targetMetric.toString(), sareOn19Base.tau, sareOn19Base.sare));
@@ -192,7 +191,7 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaSARE {
             TauAndSARE sareOn20Base = trainAndTest(args[3], retriever, targetMetric,
                     QUERY_FILES[DL20], QRELS_FILES[DL20], args[1],
                     variantFile, variantQidFile, scoreFile,
-                    extendOne, useRBO, qvResults, Integer.parseInt(args[8]), (float)0);
+                    extendOne, useRBO, qvResults, Integer.parseInt(args[7]), (float)0);
 
             System.out.println(String.format("Base-TREC-20: Target Metric: %s, tau = %.4f, sARE = %.4f",
                     targetMetric.toString(), sareOn20Base.tau, sareOn20Base.sare));
