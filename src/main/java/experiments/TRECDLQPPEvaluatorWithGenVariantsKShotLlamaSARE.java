@@ -152,7 +152,11 @@ public class TRECDLQPPEvaluatorWithGenVariantsKShotLlamaSARE {
         //here ..... 0421
         AllRetrievedResults qvResults = null;
 
-        variantFile = Constants.QPP_JM_VARIANTS_FILE_LLAMA3_KSHOT_BASE + "_" + args[6] + "shot_" + args[4] + ".tsv";
+        if(args[6].equals("0")) {
+            variantFile = Constants.QPP_JM_VARIANTS_FILE_LLAMA3;;
+        } else {
+            variantFile = Constants.QPP_JM_VARIANTS_FILE_LLAMA3_KSHOT_BASE + "_" + args[6] + "shot_" + args[4] + ".tsv";
+        }
         
         boolean extendOne = Boolean.parseBoolean(args[5]);
         boolean useRBO = true;
