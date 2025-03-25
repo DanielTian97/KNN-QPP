@@ -169,8 +169,8 @@ public class TRECDLQPPEvaluatorWithGenVariantsSARE {
                 break;
             default:
                 variantFile = Constants.QPP_JM_VARIANTS_FILE_SBERT;
-//                variantQidFile = Constants.QPP_JM_VARIANTS_QID_FILE_SBERT;
-//                scoreFile = Constants.QPP_JM_SCORE_FILE_SBERT;
+                variantQidFile = Constants.QPP_JM_VARIANTS_QID_FILE_SBERT;
+                scoreFile = Constants.QPP_JM_SCORE_FILE_SBERT;
         }
         
         boolean extendOne = Boolean.parseBoolean(args[5]);
